@@ -1,0 +1,57 @@
+env: "local" # local (цветные логи), dev (тестовый стенд), prod (JSON логи, оптимизация)
+
+http_server:
+  addr: ":8080"
+  read_timeout: "5s"          # Время на чтение тела запроса. Защита от медленных клиентов.
+  write_timeout: "10s"        # Время на запись ответа
+  idle_timeout: "60s"         # Время жизни неактивного Keep-Alive соединения
+  shutdown_timeout: "15s"     # Graceful Shutdown timer
+  max_header_bytes: 1048576   # 1MB. Защита от Dos-атак через гигантские HTTP-заголовки.
+
+auth:
+  jwt_secret: "super-secret-key-change-me-in-prod"
+  token_ttl: "72h"
+
+gin:
+  # debag (логирует каждый запрос), release (макс. производительность)
+  mode: "debug"               # local -> debug, prod -> release
+
+postgres:
+  # DSN: Строка подключения. В проде перекрывается через ENV: POSTGRES_DSN
+  dsn: "postgres://postgres:postgres@localhost:5432/mydb?sslmode=disable"
+  max_conns: 15          # Лимит активных соединений к БД.
+  min_idle_conns: 5          # Сколько свободных теплых соединений держать в пуле.
+  max_conn_lifetime: "15m"    # Макс. время жизни соединения (защита от утечек)
+  max_conn_idle_time: "5m"    # Удаляет лишние idle-соединения, освобождая ресурсы БД.
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+  min_idle_conns: 5           # Всегда держать 5 готовых соединений (убирает задержку при старте)
+  pool_size: 20               # Макс. кол-во параллельных запросов к  Redis.
+  read_timeout: "1s"          # тайм-аут на чтение. Fail Fast, если Redis тормозит.
+  write_timeout: "1s"
+  ttl: "30m"                  # Дефолтное время жизни кэша
+
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "events"
+  kind: "topic"               # Гибкая маршрутизация по ключам (routing keys)
+  delivery_mode: 2            # 2 = Persistent. Сообщения пишутся на диск (не пропадут при рестарте)
+  prefetch_count: 10          # Qos: сколько сообщений воркер забирает в обработку за раз.
+
+kafka:
+  brokers: ["localhost:9092"]
+  client_id: "order-service"
+  consumer_group: "order-group"
+  consumer_worker_count: 10   # количество параллельных горутин-обработчиков.
+  retry_max: 5                # сколько раз пытаться переотправить при сетевом сбое
+  required_acks: -1           # -1 (all): ждать подтверждения от всех реплик (макс. надежность)
+  max_wait_time: "250ms"      # ждать накопления пачки сообщений перед отправкой (batching)
+  batch_size: 10             # сколько сообщений объединять в один сетевой пакет
+
+logger:
+  level: "debug"              # debug, info, warn, error
+  json_format: false          # true для прода (парсинг в ELK), false  для локальной разработки
+

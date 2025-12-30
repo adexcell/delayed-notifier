@@ -1,38 +1,65 @@
-version: '3.8'
-
 services:
-
-  db:
-    image: postgres:18-alpine
-    container_name: postgres_delayed
+  pg:
+    image: postgres:17-alpine
+    container_name: delayed_pg
     restart: always
     shm_size: 128mb
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: delNotifier
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - ./pg_data:/var/lib/postgresql/data
+      - ${PG_DATA_DIR:-./pg_data}:/var/lib/postgresql/data
 
-  rabbit:
-    image: heidiks/rabbitmq-delayed-message-exchange:latest
-    container_name: rabbitmq_delayed
+  redis:
+    image: redis:7-alpine
+    container_name: delayed_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
     environment:
-      - RABBITMQ_DEFAULT_USER: admin
-      - RABBITMQ_DEFAULT_PASS: password
-    ports:
-      - "5672:5672" # AMQP protocol
-      - "15672:15672" # Management UI
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
-      - ./rabbit_data:/var/lib/rabbitmq
+      - ${REDIS_DATA_DIR:-./redis_data}:/data
 
-  # веб-интерфейс для postgres
-  adminer:
-    image: adminer
-    restart: always
+  rabbitmq:
+    image: heidiks/rabbitmq-delayed-message-exchange:latest
+    container_name: delayed_rabbitmq
     ports:
-      - 8080:8080
-    depends_on:
-      - db
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ${RABBITMQ_DATA_DIR:-./rabbitmq_data}:/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: delayed_kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # Уникальный ID брокера в кластере
+      KAFKA_NODE_ID: 1
+      # Роли узла: он и контроллер (управляет), и брокер (хранит данные)
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      # Настройка портов: 9092 для внешних клиентов (твоего Go кода), 9093 для внутренних нужд
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      # Кворум для KRaft
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:9093'
+      # Настройки для одного узла (репликация невозможна, ставим 1)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # Идентификатор кластера (генерируется один раз)
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+

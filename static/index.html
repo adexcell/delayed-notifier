@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Go Auth App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-96">
+        <h2 id="title" class="text-2xl mb-4 text-center">Регистрация</h2>
+        <form id="authForm" class="space-y-4">
+            <input type="email" id="email" placeholder="Email" required class="w-full p-2 border rounded">
+            <input type="password" id="password" placeholder="Пароль" required class="w-full p-2 border rounded">
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Отправить</button>
+        </form>
+        <p id="message" class="mt-4 text-center text-sm"></p>
+        <button onclick="toggleMode()" class="w-full mt-4 text-blue-500 text-sm underline">Уже есть аккаунт? Войти</button>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>
