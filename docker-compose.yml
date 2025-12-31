@@ -1,4 +1,30 @@
 services:
+  app:
+    build: .
+    command: ./app
+    container_name: image-processor
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    networks:
+      - app-network
+  
   pg:
     image: postgres:17-alpine
     container_name: delayed_pg
@@ -12,6 +38,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ${PG_DATA_DIR:-./pg_data}:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
@@ -24,6 +52,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ${REDIS_DATA_DIR:-./redis_data}:/data
+    networks:
+      - app-network
 
   rabbitmq:
     image: heidiks/rabbitmq-delayed-message-exchange:latest
@@ -36,6 +66,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - ${RABBITMQ_DATA_DIR:-./rabbitmq_data}:/data
+    networks:
+      - app-network
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -43,23 +75,20 @@ services:
     ports:
       - "9092:9092"
     environment:
-      # Уникальный ID брокера в кластере
       KAFKA_NODE_ID: 1
-      # Роли узла: он и контроллер (управляет), и брокер (хранит данные)
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      # Настройка портов: 9092 для внешних клиентов (твоего Go кода), 9093 для внутренних нужд
       KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      # Кворум для KRaft
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:9093'
-      # Настройки для одного узла (репликация невозможна, ставим 1)
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      # Идентификатор кластера (генерируется один раз)
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    networks:
+      - app-network
 
-
+networks:
+  app-network:
