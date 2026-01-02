@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/adexcell/delayed-notifier/internal/notify"
+	"github.com/adexcell/delayed-notifier/internal/transport"
 	"github.com/wb-go/wbf/ginext"
 	"github.com/wb-go/wbf/zlog"
 )
@@ -15,7 +15,7 @@ func main() {
 	httprouter := ginext.New("debug")
 
 	zlog.Logger.Info().Msg("register notify handler")
-	notifyHandler := notify.NewNotifyHandler()
+	notifyHandler := transport.NewNotifyHandler()
 	notifyHandler.Register(httprouter)
 
 	httprouter.GET("/", Hello)

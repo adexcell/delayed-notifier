@@ -1,8 +1,6 @@
-package controllers
+package transport
 
-import (
-	"github.com/wb-go/wbf/ginext"
-)
+import "github.com/wb-go/wbf/ginext"
 
 type Handler interface {
 	Register(router *ginext.Engine)
