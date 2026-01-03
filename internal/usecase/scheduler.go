@@ -1,0 +1,67 @@
+package usecase
+
+import (
+	"context"
+	"time"
+
+	"github.com/adexcell/delayed-notifier/internal/domain"
+	"github.com/wb-go/wbf/zlog"
+)
+
+type Scheduler struct {
+	postgres  domain.NotifyPostgres
+	queue     domain.QueueProvider
+	interval  time.Duration
+	batchSize int // количество одновременно обрабатываемых уведомлений
+}
+
+func NewScheduler(
+	postgres domain.NotifyPostgres,
+	queue domain.QueueProvider,
+	interval time.Duration,
+	batchSize int,
+) *Scheduler {
+	return &Scheduler{
+		postgres:  postgres,
+		queue:     queue,
+		interval:  interval,
+		batchSize: batchSize,
+	}
+}
+
+func (s *Scheduler) Run(ctx context.Context) {
+	ticker := time.NewTicker(s.interval)
+	defer ticker.Stop()
+
+	zlog.Logger.Info().Msg("Scheduler started")
+
+	for {
+		select {
+		case <-ctx.Done():
+			zlog.Logger.Info().Msg("Scheduler stopped by context")
+			return
+		case <-ticker.C:
+			s.process(ctx)
+		}
+	}
+}
+
+func (s *Scheduler) process(ctx context.Context) {
+	// забираем пачку уведомлений из БД (StatusPending -> StatusInProcess)
+	notifies, err := s.postgres.LockAndFetchReady(ctx, s.batchSize)
+	if err != nil {
+		zlog.Logger.Error().Err(err).Msg("Scheduler: failed to fetch notifies from db")
+	}
+
+	if len(notifies) == 0 {
+		return
+	}
+
+	for _, n := range notifies {
+		if err := s.queue.Publish(ctx, n); err != nil {
+			zlog.Logger.Error().Err(err).Msg("Scheduler: failed to publish notify")
+			errStr := err.Error()
+			_ = s.postgres.UpdateStatus(ctx, n.ID, domain.StatusPending, &errStr)
+		}
+	}
+}

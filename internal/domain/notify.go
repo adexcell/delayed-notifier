@@ -10,11 +10,11 @@ import (
 type Status int
 
 const (
-	StatusPending   Status = iota // ожидает отправки
-	StatusInProcess               // передано в очередь на отправку
-	StatusSent                    // отправлено
-	StatusFailed                  // ошибка после всех попыток
-	StatusCanceled                // отменено пользователем
+	StatusPending   Status = iota // 0 - ожидает отправки
+	StatusInProcess               // 1 - передано в очередь на отправку
+	StatusSent                    // 2 - отправлено
+	StatusFailed                  // 3 - ошибка после всех попыток
+	StatusCanceled                // 4 - отменено пользователем
 )
 
 type Notify struct {

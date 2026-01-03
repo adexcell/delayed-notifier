@@ -24,10 +24,6 @@ type notifyPostgresDTO struct {
 	Channel     string `db:"channel"`
 	Status      Status `db:"status"`
 	ScheduledAt time.Time `db:"scheduled_at"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
-	RetryCount  int `db:"retry_count"`
-	LastError   *string `db:"last_error"`
 }
 
 func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO {
