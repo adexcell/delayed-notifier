@@ -1,4 +1,4 @@
-package postgres
+package redis
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type notifyPostgresDTO struct {
+type notifyRedisDTO struct {
 	ID          uuid.UUID     `db:"notify_id"`
 	Payload     []byte        `db:"payload"`
 	Target      string        `db:"target"`
@@ -20,8 +20,8 @@ type notifyPostgresDTO struct {
 	LastError   *string       `db:"last_error"`
 }
 
-func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO {
-	return &notifyPostgresDTO{
+func toRedisDTO(n *domain.Notify) *notifyRedisDTO {
+	return &notifyRedisDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,
 		Target:      n.Target,
@@ -35,7 +35,7 @@ func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO {
 	}
 }
 
-func toDomain(dto *notifyPostgresDTO) *domain.Notify {
+func toDomain(dto *notifyRedisDTO) *domain.Notify {
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,

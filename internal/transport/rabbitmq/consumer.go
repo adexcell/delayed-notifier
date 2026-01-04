@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/adexcell/delayed-notifier/internal/repository/rabbit"
+	"github.com/adexcell/delayed-notifier/internal/infrastructure/rabbit"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/wb-go/wbf/zlog"
 )
@@ -28,7 +28,7 @@ func (c *NotifyConsumer) Handle(ctx context.Context, msg amqp.Delivery) error {
 
 	// TODO: переписать проверку идемпотентности - проверять в redis (в redis надо хранить id обработанных notify)
 	// проверка идемпотентности
-	currentNotify, err := c.postgres.GetByID(ctx, dto.ID)
+	currentNotify, err := c.postgres.GetNotifyByID(ctx, dto.ID)
 	if err != nil {
 		zlog.Logger.Error().Err(err).Any("id", dto.ID).Msgf("Consumer: failed to fetch current status for %s: %v", dto.ID, err)
 		return err

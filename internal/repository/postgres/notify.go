@@ -12,8 +12,6 @@ import (
 	"github.com/wb-go/wbf/dbpg"
 )
 
-
-
 type notifyPostgres struct {
 	db *dbpg.DB
 }
@@ -24,17 +22,17 @@ func NewNotifyPostgres(db *dbpg.DB) *notifyPostgres {
 
 func (p *notifyPostgres) Create(ctx context.Context, n *domain.Notify) error {
 	dto := toPostgresDTO(n)
-	
+
 	query := `
 		insert into notify (notify_id, payload, target, channel, status, scheduled_at, created_at)
 		values ($1, $2, $3, $4, $5, $6, $7);`
 
 	_, err := p.db.ExecContext(ctx, query,
-		dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, time.Now())
+		dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, time.Now().UTC())
 	return err
 }
 
-func (p *notifyPostgres) GetByID(ctx context.Context, id uuid.UUID) (*domain.Notify, error) {
+func (p *notifyPostgres) GetNotifyByID(ctx context.Context, id uuid.UUID) (*domain.Notify, error) {
 	query := `
 		SELECT notify_id, payload, target, channel, status, scheduled_at
 		FROM notify WHERE notify_id=$1;`
@@ -49,7 +47,7 @@ func (p *notifyPostgres) GetByID(ctx context.Context, id uuid.UUID) (*domain.Not
 	return toDomain(&dto), err
 }
 
-func (p *notifyPostgres) UpdateStatus(ctx context.Context, id uuid.UUID, status Status, lastErr *string) error {
+func (p *notifyPostgres) UpdateStatus(ctx context.Context, id uuid.UUID, status domain.Status, lastErr *string) error {
 	query := `
 		UPDATE notify
 		SET status = $1, last_error = $2, updated_at = NOW()
@@ -92,9 +90,10 @@ func (p *notifyPostgres) LockAndFetchReady(ctx context.Context, limit int) ([]*d
 		FROM selected
 		WHERE notify.notify_id = selected.notify_id
 		RETURNING notify.notify_id, notify.payload, notify.target, notify.channel,
-		notify.scheduled_at;`
+		notify.status, notify.scheduled_at, notify.created_at, notify.updated_at,
+		notify.retry_count, notify.last_error;`
 
-	rows, err := p.db.QueryContext(ctx, query, StatusPending, time.Now(), limit, StatusInProcess)
+	rows, err := p.db.QueryContext(ctx, query, domain.StatusPending, time.Now().UTC(), limit, domain.StatusInProcess)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +102,18 @@ func (p *notifyPostgres) LockAndFetchReady(ctx context.Context, limit int) ([]*d
 	var results []*domain.Notify
 	for rows.Next() {
 		var dto notifyPostgresDTO
-		if err := rows.Scan(&dto.ID, &dto.Payload, &dto.Target, &dto.Channel, &dto.ScheduledAt); err != nil {
+		if err := rows.Scan(
+			&dto.ID,
+			&dto.Payload,
+			&dto.Target,
+			&dto.Channel,
+			&dto.Status,
+			&dto.ScheduledAt,
+			&dto.CreatedAt,
+			&dto.UpdatedAt,
+			&dto.RetryCount,
+			&dto.LastError,
+		); err != nil {
 			return nil, err
 		}
 		results = append(results, toDomain(&dto))

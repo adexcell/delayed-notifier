@@ -1,4 +1,4 @@
-package postgres
+package rabbit
 
 import (
 	"time"
@@ -7,21 +7,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type notifyPostgresDTO struct {
-	ID          uuid.UUID     `db:"notify_id"`
-	Payload     []byte        `db:"payload"`
-	Target      string        `db:"target"`
-	Channel     string        `db:"channel"`
-	Status      domain.Status `db:"status"`
-	ScheduledAt time.Time     `db:"scheduled_at"`
-	CreatedAt   time.Time     `db:"created_at"`
-	UpdatedAt   time.Time     `db:"updated_at"`
-	RetryCount  int           `db:"retry_count"`
-	LastError   *string       `db:"last_error"`
+type NotifyRabbitDTO struct {
+	ID          uuid.UUID     `json:"id"`
+	Payload     []byte        `json:"payload"`
+	Target      string        `json:"target"`
+	Channel     string        `json:"channel"`
+	Status      domain.Status `json:"status"`
+	ScheduledAt time.Time     `json:"scheduled_at"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	RetryCount  int           `json:"retry_count"`
+	LastError   *string       `json:"last_error"`
 }
 
-func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO {
-	return &notifyPostgresDTO{
+func toRabbitDTO(n *domain.Notify) *NotifyRabbitDTO {
+	return &NotifyRabbitDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,
 		Target:      n.Target,
@@ -35,7 +35,7 @@ func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO {
 	}
 }
 
-func toDomain(dto *notifyPostgresDTO) *domain.Notify {
+func toDomain(dto *NotifyRabbitDTO) *domain.Notify {
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,

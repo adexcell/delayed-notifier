@@ -19,7 +19,7 @@ const (
 
 type Notify struct {
 	ID          uuid.UUID
-	Payload     string
+	Payload     []byte
 	Target      string
 	Channel     string
 	Status      Status
@@ -32,12 +32,25 @@ type Notify struct {
 
 type NotifyPostgres interface {
 	Create(ctx context.Context, n *Notify) error
-	GetByID(ctx context.Context, id uuid.UUID) (*Notify, error)
+	GetNotifyByID(ctx context.Context, id uuid.UUID) (*Notify, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, status Status, lastErr *string) error
 	DeleteByID(ctx context.Context, id uuid.UUID) error
 	LockAndFetchReady(ctx context.Context, limit int) ([]*Notify, error)
 }
 
-type QueueProvider interface {
+type NotifyUsecase interface {
+	Save(ctx context.Context, n *Notify) (uuid.UUID, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*Notify, error)
+	Update(ctx context.Context, n *Notify) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetPending(ctx context.Context, limit int) ([]*Notify, error)
+}
+
+type NotifyRedis interface {
+	Set(ctx context.Context, n *Notify) error
+	Get(ctx context.Context, id uuid.UUID) (*Notify, error)
+}
+
+type NotifyRabbitMQAdapter interface {
 	Publish(ctx context.Context, n *Notify) error
 }

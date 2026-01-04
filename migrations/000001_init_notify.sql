@@ -1,6 +1,6 @@
 create table if not exists notify (
     notify_id UUID primary key,
-    payload text not null,
+    payload JSONB not null,
     target varchar(255) not null,
     channel varchar(100) not null,
     status int not null default 0,

@@ -10,20 +10,20 @@ import (
 
 type Scheduler struct {
 	postgres  domain.NotifyPostgres
-	queue     domain.QueueProvider
+	rabbit     domain.NotifyRabbitMQAdapter
 	interval  time.Duration
 	batchSize int // количество одновременно обрабатываемых уведомлений
 }
 
 func NewScheduler(
 	postgres domain.NotifyPostgres,
-	queue domain.QueueProvider,
+	rabbit domain.NotifyRabbitMQAdapter,
 	interval time.Duration,
 	batchSize int,
 ) *Scheduler {
 	return &Scheduler{
 		postgres:  postgres,
-		queue:     queue,
+		rabbit:     rabbit,
 		interval:  interval,
 		batchSize: batchSize,
 	}
@@ -58,7 +58,7 @@ func (s *Scheduler) process(ctx context.Context) {
 	}
 
 	for _, n := range notifies {
-		if err := s.queue.Publish(ctx, n); err != nil {
+		if err := s.rabbit.Publish(ctx, n); err != nil {
 			zlog.Logger.Error().Err(err).Msg("Scheduler: failed to publish notify")
 			errStr := err.Error()
 			_ = s.postgres.UpdateStatus(ctx, n.ID, domain.StatusPending, &errStr)
