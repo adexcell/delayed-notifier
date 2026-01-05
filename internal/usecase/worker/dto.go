@@ -1,4 +1,4 @@
-package redis
+package worker
 
 import (
 	"time"
@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type NotifyRedisDTO struct {
-	ID          uuid.UUID     `json:"notify_id"`
+type NotifyWorkerDTO struct {
+	ID          uuid.UUID     `json:"id"`
 	Payload     []byte        `json:"payload"`
 	Target      string        `json:"target"`
 	Channel     string        `json:"channel"`
@@ -20,8 +20,8 @@ type NotifyRedisDTO struct {
 	LastError   *string       `json:"last_error"`
 }
 
-func toRedisDTO(n *domain.Notify) *NotifyRedisDTO {
-	return &NotifyRedisDTO{
+func toRabbitDTO(n *domain.Notify) *NotifyWorkerDTO {
+	return &NotifyWorkerDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,
 		Target:      n.Target,
@@ -35,7 +35,7 @@ func toRedisDTO(n *domain.Notify) *NotifyRedisDTO {
 	}
 }
 
-func toDomain(dto NotifyRedisDTO) *domain.Notify {
+func toDomain(dto *NotifyWorkerDTO) *domain.Notify {
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,

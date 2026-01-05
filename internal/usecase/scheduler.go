@@ -8,22 +8,26 @@ import (
 	"github.com/wb-go/wbf/zlog"
 )
 
+const (
+	maxRetries int = 3
+)
+
 type Scheduler struct {
 	postgres  domain.NotifyPostgres
-	rabbit     domain.NotifyRabbitMQAdapter
+	rabbit    domain.QueueProvider
 	interval  time.Duration
 	batchSize int // количество одновременно обрабатываемых уведомлений
 }
 
 func NewScheduler(
 	postgres domain.NotifyPostgres,
-	rabbit domain.NotifyRabbitMQAdapter,
+	rabbit domain.QueueProvider,
 	interval time.Duration,
 	batchSize int,
 ) *Scheduler {
 	return &Scheduler{
 		postgres:  postgres,
-		rabbit:     rabbit,
+		rabbit:    rabbit,
 		interval:  interval,
 		batchSize: batchSize,
 	}
@@ -61,7 +65,19 @@ func (s *Scheduler) process(ctx context.Context) {
 		if err := s.rabbit.Publish(ctx, n); err != nil {
 			zlog.Logger.Error().Err(err).Msg("Scheduler: failed to publish notify")
 			errStr := err.Error()
-			_ = s.postgres.UpdateStatus(ctx, n.ID, domain.StatusPending, &errStr)
+
+			var status domain.Status
+
+			if n.RetryCount <= maxRetries {
+				n.RetryCount += 1
+				status = domain.StatusPending
+			} else {
+				n.RetryCount = 0
+				status = domain.StatusFailed
+			}
+
+			_ = s.postgres.UpdateStatus(ctx, n.ID, status, n.RetryCount, &errStr)
 		}
+
 	}
 }

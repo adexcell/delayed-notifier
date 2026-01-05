@@ -47,13 +47,22 @@ func (p *notifyPostgres) GetNotifyByID(ctx context.Context, id uuid.UUID) (*doma
 	return toDomain(&dto), err
 }
 
-func (p *notifyPostgres) UpdateStatus(ctx context.Context, id uuid.UUID, status domain.Status, lastErr *string) error {
+func (p *notifyPostgres) UpdateStatus(
+	ctx context.Context, 
+	id uuid.UUID, 
+	status domain.Status, 
+	retryCount int,
+	lastErr *string,
+) error {
 	query := `
 		UPDATE notify
-		SET status = $1, last_error = $2, updated_at = NOW()
-		WHERE notify_id = $3;`
+		SET status      = $2, 
+			retry_count = $3
+			last_error  = $4, 
+			updated_at  = NOW()
+		WHERE notify_id = $1;`
 
-	res, err := p.db.ExecContext(ctx, query, status, lastErr, id)
+	res, err := p.db.ExecContext(ctx, query, id, status, retryCount, lastErr)
 	if err != nil {
 		return fmt.Errorf("failed to update status: %w", err)
 	}
@@ -89,9 +98,16 @@ func (p *notifyPostgres) LockAndFetchReady(ctx context.Context, limit int) ([]*d
 		SET status = $4, updated_at = NOW()
 		FROM selected
 		WHERE notify.notify_id = selected.notify_id
-		RETURNING notify.notify_id, notify.payload, notify.target, notify.channel,
-		notify.status, notify.scheduled_at, notify.created_at, notify.updated_at,
-		notify.retry_count, notify.last_error;`
+		RETURNING   notify.notify_id, 
+					notify.payload, 
+					notify.target, 
+					notify.channel,
+					notify.status, 
+					notify.scheduled_at, 
+					notify.created_at, 
+					notify.updated_at,
+					notify.retry_count, 
+					notify.last_error;`
 
 	rows, err := p.db.QueryContext(ctx, query, domain.StatusPending, time.Now().UTC(), limit, domain.StatusInProcess)
 	if err != nil {

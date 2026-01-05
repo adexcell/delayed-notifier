@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
@@ -11,13 +12,13 @@ import (
 type NotifyUsecase struct {
 	postgres domain.NotifyPostgres
 	redis    domain.NotifyRedis
-	rabbit   domain.NotifyRabbitMQAdapter
+	rabbit   domain.QueueProvider
 }
 
 func NewNotifyUsecase(
 	postgres domain.NotifyPostgres,
 	redis domain.NotifyRedis,
-	rabbit domain.NotifyRabbitMQAdapter,
+	rabbit domain.QueueProvider,
 ) *NotifyUsecase {
 	return &NotifyUsecase{
 		postgres: postgres,
@@ -36,25 +37,34 @@ func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (uuid.UUID, 
 		return n.ID, fmt.Errorf("failed to create save notify in db: %w", err)
 	}
 
+	if err := u.rabbit.Publish(ctx, n); err != nil {
+		return uuid.Nil, fmt.Errorf("failed to publish in broker: %w", err)
+	}
 	return n.ID, nil
 }
 
 func (u *NotifyUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Notify, error) {
-	// TODO: проверить наличие в redis
 	n, err := u.redis.Get(ctx, id)
+	if err == nil {
+		return n, nil
+	}
 
-	// TODO: сходить в бд
+	n, err = u.postgres.GetNotifyByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFoundNotify) {
+			return nil, domain.ErrNotFoundNotify
+		}
+		return nil, fmt.Errorf("failed to get from db: %w", err)
+	}
+
+	if err := u.redis.Set(ctx, n); err != nil {
+		return nil, fmt.Errorf("failed to set to redis: %w", err)
+	}
+
+	return n, nil
 }
 
-// func (u *NotifyUsecase) Update(ctx context.Context, n *domain.Notify) error {
-	// TODO: сходить в бд
-// }
+func (u *NotifyUsecase) Delete(ctx context.Context, id uuid.UUID) error {
+	return u.postgres.DeleteByID(ctx, id)
+}
 
-// func (u *NotifyUsecase) Delete(ctx context.Context, id uuid.UUID) error {
-	// TODO: сходить в бд
-// }
-
-// func (u *NotifyUsecase) GetPending(ctx context.Context, limit int) ([]*domain.Notify, error) {
-	// TODO: проверить наличие в redis
-	// TODO: сходить в бд
-// }

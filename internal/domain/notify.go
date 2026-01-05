@@ -33,7 +33,7 @@ type Notify struct {
 type NotifyPostgres interface {
 	Create(ctx context.Context, n *Notify) error
 	GetNotifyByID(ctx context.Context, id uuid.UUID) (*Notify, error)
-	UpdateStatus(ctx context.Context, id uuid.UUID, status Status, lastErr *string) error
+	UpdateStatus(ctx context.Context, id uuid.UUID, status Status, retryCount int, lastErr *string) error
 	DeleteByID(ctx context.Context, id uuid.UUID) error
 	LockAndFetchReady(ctx context.Context, limit int) ([]*Notify, error)
 }
@@ -41,7 +41,7 @@ type NotifyPostgres interface {
 type NotifyUsecase interface {
 	Save(ctx context.Context, n *Notify) (uuid.UUID, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Notify, error)
-	Update(ctx context.Context, n *Notify) error
+	UpdateNotify(ctx context.Context, n *Notify) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetPending(ctx context.Context, limit int) ([]*Notify, error)
 }
@@ -51,6 +51,9 @@ type NotifyRedis interface {
 	Get(ctx context.Context, id uuid.UUID) (*Notify, error)
 }
 
-type NotifyRabbitMQAdapter interface {
+type MessageHandler func(ctx context.Context, payload []byte) error
+
+type QueueProvider interface {
 	Publish(ctx context.Context, n *Notify) error
+	Consume(ctx context.Context, handler MessageHandler) error
 }

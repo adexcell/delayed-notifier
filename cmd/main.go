@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/adexcell/delayed-notifier/internal/transport"
+	transport "github.com/adexcell/delayed-notifier/internal/transport/http"
 	"github.com/wb-go/wbf/ginext"
 	"github.com/wb-go/wbf/zlog"
 )

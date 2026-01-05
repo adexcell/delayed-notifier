@@ -97,13 +97,13 @@ func (q *NotifyQueueAdapter) Publish(ctx context.Context, n *domain.Notify) erro
 	return nil
 }
 
-func (q *NotifyQueueAdapter) Consume(ctx context.Context) (<-chan amqp.Delivery, error) {
+func (q *NotifyQueueAdapter) Consume(ctx context.Context, handler domain.MessageHandler) error {
 	ch, err := q.conn.Channel()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open connection channel rabbitmq: %w", err)
+		return fmt.Errorf("failed to open connection channel rabbitmq: %w", err)
 	}
 
-	return ch.Consume(
+	outputChan, err := ch.Consume(
 		queueName, // queue
 		"",        // consumer
 		false,     // auto-ack
@@ -112,6 +112,11 @@ func (q *NotifyQueueAdapter) Consume(ctx context.Context) (<-chan amqp.Delivery,
 		false,     // no-wait
 		nil,       // args
 	)
+	if err != nil {
+		return fmt.Errorf("failed channel consume: %w", err)
+	}
+
+	return nil
 }
 
 func (q *NotifyQueueAdapter) Close(ch *amqp.Channel) {
