@@ -1,50 +1,81 @@
-include .env
-export
+DC := docker compose
+PROJECT := delayed notifier
+APP_SERVICE := delayed notifier
+MIGRATIONS_DIR := ./migrations
+LOCAL_DSN := "postgres://postgres:pass@localhost:5432/delayed_notifier?sslmode=disable"
 
-MIGRATIONS_PATH=./migrations
-DC := docker compose 
-CURR_DIR_NAME  := $(notdir $(CURDIR))
-PROJECT := delayed-notifier  # Имя проекта (опционально)
+.PHONY: help
+help: ## Список команд
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: migrate-up migrate-down migrate-force run-app dc-up dc-stop dc-start
+.PHONY: test
+test: ## Запуск unit-тестов
+	go test -v ./internal/... ./pkg/... ./cmd/... ./config/...
 
-migrate-up:
-	docker run --rm \
-		-v $(MIGRATIONS_PATH):/migrations \
-		--network host migrate/migrate \
-		-path=/migrations/ -database "$(POSTGRES_DSN)" up
+.PHONY: start
+start: test ## Запуск всего проекта в Docker (DB + Migrations + App)
+	$(DC) up -d postgres redis --wait
+	$(MAKE) migrate-up
+	$(DC) --profile app up -d --build
 
-migrate-down:
-	docker run --rm \
-		-v $(MIGRATIONS_PATH):/migrations \
-		--network host migrate/migrate \
-		-path=$(MIGRATIONS_PATH) -database "$(POSTGRES_DSN)" down 1
+.PHONY: start-local
+start-local: up migrate-up run ## Запуск локально (DB в Docker, App через go run)
 
-migrate-force-1:
-	docker run --rm \
-		-v $(MIGRATIONS_PATH):/migrations \
-		--network host migrate/migrate \
-		-path=$(MIGRATIONS_PATH) -database "$(POSTGRES_DSN)" force 1
+.PHONY: run
+run: ## Запуск go run
+	go run ./cmd/main.go
 
-migrate-force-0:
-	docker run --rm -v $(MIGRATIONS_PATH):/migrations \
-		--network host migrate/migrate \
-		-path=$(MIGRATIONS_PATH) -database "$(POSTGRES_DSN)" force 0
+# --- Database & Migrations ---
 
-dc-up:
-	docker compose up -d
+.PHONY: migrate-up
+migrate-up: ## Накатить миграции (up)
+	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) up
 
-dc-down:
-	docker compose down
+.PHONY: migrate-down
+migrate-down: ## Откатить миграции (down)
+	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) down
 
-dc-stop:
-	docker compose stop
+.PHONY: migrate-force
+migrate-force: ## Форсировать версию миграции (make migrate-force v=1)
+	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) force $(v)
 
-dc-start:
-	docker compose start
+# --- Docker Control ---
 
-open-db:
-	docker exec -it delayed_pg psql -U postgres -d delayed_notifier
+.PHONY: up
+up: ## Поднять инфраструктуру (db, redis)
+	$(DC) -p $(PROJECT) up -d --wait
 
-run-app:
-	go run cmd/main.go
+.PHONY: down
+down: ## Остановить и удалить контейнеры
+	$(DC) -p $(PROJECT) down
+
+.PHONY: stop
+stop: ## Остановить контейнеры (без удаления)
+	$(DC) -p $(PROJECT) stop
+
+.PHONY: start-containers
+start-containers: ## Запустить остановленные контейнеры
+	$(DC) -p $(PROJECT) start
+
+.PHONY: clean
+clean: ## Удалить всё (volumes, images)
+	$(DC) down -v && docker system prune -f
+
+# --- Logs & Utils ---
+
+.PHONY: logs
+logs: ## Видеть логи всех сервисов
+	$(DC) logs -f
+
+.PHONY: logs-app
+logs-app: ## Логи сервиса приложения
+	$(DC) logs -f $(APP_SERVICE)
+
+.PHONY: ps
+ps: ## Статус контейнеров
+	$(DC) ps
+
+.PHONY: exec-app
+exec-app: ## Зайти в контейнер приложения (bash)
+	$(DC) exec $(APP_SERVICE) /bin/sh

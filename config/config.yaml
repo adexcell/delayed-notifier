@@ -1,0 +1,23 @@
+app:
+  app_name: "shortener"
+  app_version: "0.0.1"
+
+httpserver:
+  port: "8080"
+  shutdown_timeout: 5s
+
+router:
+  gin_mode: debug
+
+postgres:
+  master_dsn: "postgres://postgres:pass@localhost:5432/shortener?sslmode=disable"
+  slaves_dsn: []
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_life_time: 20m
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+  TTL: 24h

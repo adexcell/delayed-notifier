@@ -1,8 +1,8 @@
 services:
-  app:
+  delayed:
     build: .
     command: ./app
-    container_name: image-processor
+    container_name: delayed_notifier
     ports:
       - "8080:8080"
     depends_on:
