@@ -17,6 +17,6 @@ type Config struct {
 	GinMode string `mapstructure:"gin_mode"`
 }
 
-func NewRouter(cfg Config) *Router {
+func New(cfg Config) *Router {
 	return ginext.New(cfg.GinMode)
 }

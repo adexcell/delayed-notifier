@@ -1,19 +1,23 @@
 package config
 
 import (
+	"github.com/adexcell/delayed-notifier/internal/usecase"
 	"github.com/adexcell/delayed-notifier/pkg/httpserver"
 	"github.com/adexcell/delayed-notifier/pkg/postgres"
+	"github.com/adexcell/delayed-notifier/pkg/rabbit"
 	"github.com/adexcell/delayed-notifier/pkg/redis"
 	"github.com/adexcell/delayed-notifier/pkg/router"
 	"github.com/wb-go/wbf/config"
 )
 
 type Config struct {
-	App        App               `mapstructure:"app"`
-	HTTPServer httpserver.Config `mapstructure:"httpserver"`
-	Router     router.Config     `mapstructure:"router"`
-	Postgres   postgres.Config   `mapstructure:"postgres"`
-	Redis      redis.Config      `mapstructure:"redis"`
+	App        App                     `mapstructure:"app"`
+	HTTPServer httpserver.Config       `mapstructure:"httpserver"`
+	Router     router.Config           `mapstructure:"router"`
+	Postgres   postgres.Config         `mapstructure:"postgres"`
+	Redis      redis.Config            `mapstructure:"redis"`
+	Rabbit     rabbit.Config           `mapstructure:"rabbit"`
+	Scheduler  usecase.SchedulerConfig `mapstructure:"scheduler_config"`
 }
 
 type App struct {

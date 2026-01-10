@@ -5,31 +5,38 @@ import (
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/wb-go/wbf/zlog"
+	"github.com/adexcell/delayed-notifier/pkg/log"
 )
 
 const (
 	maxRetries int = 3
 )
 
+type SchedulerConfig struct {
+	Interval  time.Duration `mapstructure:"interval"`
+	BatchSize int `mapstructure:"batch_size"`
+}
+
 type Scheduler struct {
 	postgres  domain.NotifyPostgres
 	rabbit    domain.QueueProvider
 	interval  time.Duration
 	batchSize int // количество одновременно обрабатываемых уведомлений
+	log       log.Log
 }
 
 func NewScheduler(
 	postgres domain.NotifyPostgres,
 	rabbit domain.QueueProvider,
-	interval time.Duration,
-	batchSize int,
-) *Scheduler {
+	cfg SchedulerConfig,
+	log log.Log,
+) domain.Scheduler {
 	return &Scheduler{
 		postgres:  postgres,
 		rabbit:    rabbit,
-		interval:  interval,
-		batchSize: batchSize,
+		interval:  cfg.Interval,
+		batchSize: cfg.BatchSize,
+		log:       log,
 	}
 }
 
@@ -37,12 +44,12 @@ func (s *Scheduler) Run(ctx context.Context) {
 	ticker := time.NewTicker(s.interval)
 	defer ticker.Stop()
 
-	zlog.Logger.Info().Msg("Scheduler started")
+	s.log.Info().Msg("Scheduler started")
 
 	for {
 		select {
 		case <-ctx.Done():
-			zlog.Logger.Info().Msg("Scheduler stopped by context")
+			s.log.Info().Msg("Scheduler stopped by context")
 			return
 		case <-ticker.C:
 			s.process(ctx)
@@ -54,7 +61,7 @@ func (s *Scheduler) process(ctx context.Context) {
 	// забираем пачку уведомлений из БД (StatusPending -> StatusInProcess)
 	notifies, err := s.postgres.LockAndFetchReady(ctx, s.batchSize)
 	if err != nil {
-		zlog.Logger.Error().Err(err).Msg("Scheduler: failed to fetch notifies from db")
+		s.log.Error().Err(err).Msg("Scheduler: failed to fetch notifies from db")
 	}
 
 	if len(notifies) == 0 {
@@ -63,7 +70,7 @@ func (s *Scheduler) process(ctx context.Context) {
 
 	for _, n := range notifies {
 		if err := s.rabbit.Publish(ctx, n); err != nil {
-			zlog.Logger.Error().Err(err).Msg("Scheduler: failed to publish notify")
+			s.log.Error().Err(err).Msg("Scheduler: failed to publish notify")
 			errStr := err.Error()
 
 			var status domain.Status
@@ -78,6 +85,5 @@ func (s *Scheduler) process(ctx context.Context) {
 
 			_ = s.postgres.UpdateStatus(ctx, n.ID, status, n.RetryCount, &errStr)
 		}
-
 	}
 }

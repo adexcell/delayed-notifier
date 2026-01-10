@@ -37,7 +37,7 @@ func (c *NotifyConsumer) Handle(ctx context.Context, payload []byte) error {
 	if err != nil {
 		currentNotify, err = c.postgres.GetNotifyByID(ctx, dto.ID)
 		if err != nil {
-			if errors.Is(err, domain.ErrNotFoundNotify) {
+			if errors.Is(err, domain.ErrNotFound) {
 				zlog.Logger.Error().Err(err).Any("id", dto.ID).Msgf("Consumer: not found notify %s: %v", dto.ID, err)
 				return err
 			}

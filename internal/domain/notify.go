@@ -3,8 +3,6 @@ package domain
 import (
 	"context"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Status int
@@ -17,8 +15,10 @@ const (
 	StatusCanceled                // 4 - отменено пользователем
 )
 
+
+// Формат ID - uuid.UUID из пакета "github.com/google/uuid" приведенный в формат string
 type Notify struct {
-	ID          uuid.UUID
+	ID          string
 	Payload     []byte
 	Target      string
 	Channel     string
@@ -32,28 +32,30 @@ type Notify struct {
 
 type NotifyPostgres interface {
 	Create(ctx context.Context, n *Notify) error
-	GetNotifyByID(ctx context.Context, id uuid.UUID) (*Notify, error)
-	UpdateStatus(ctx context.Context, id uuid.UUID, status Status, retryCount int, lastErr *string) error
-	DeleteByID(ctx context.Context, id uuid.UUID) error
+	GetNotifyByID(ctx context.Context, id string) (*Notify, error)
+	UpdateStatus(ctx context.Context, id string, status Status, retryCount int, lastErr *string) error
+	DeleteByID(ctx context.Context, id string) error
 	LockAndFetchReady(ctx context.Context, limit int) ([]*Notify, error)
+	Close() error
 }
 
 type NotifyUsecase interface {
-	Save(ctx context.Context, n *Notify) (uuid.UUID, error)
-	GetByID(ctx context.Context, id uuid.UUID) (*Notify, error)
-	UpdateNotify(ctx context.Context, n *Notify) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	GetPending(ctx context.Context, limit int) ([]*Notify, error)
+	Save(ctx context.Context, n *Notify) (string, error)
+	GetByID(ctx context.Context, id string) (*Notify, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type NotifyRedis interface {
-	Set(ctx context.Context, n *Notify) error
-	Get(ctx context.Context, id uuid.UUID) (*Notify, error)
+	SetWithExpiration(ctx context.Context, n *Notify) error
+	Get(ctx context.Context, id string) (*Notify, error)
+	Close() error
 }
 
-type MessageHandler func(ctx context.Context, payload []byte) error
+type Scheduler interface {
+	Run(ctx context.Context)
+}
 
 type QueueProvider interface {
 	Publish(ctx context.Context, n *Notify) error
-	Consume(ctx context.Context, handler MessageHandler) error
+	Close() error
 }

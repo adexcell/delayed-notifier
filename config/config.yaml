@@ -2,22 +2,44 @@ app:
   app_name: "shortener"
   app_version: "0.0.1"
 
+scheduler_config:
+  interval: "5m"
+  batch_size: 10
+
 httpserver:
   port: "8080"
-  shutdown_timeout: 5s
+  shutdown_timeout: "5s"
 
 router:
   gin_mode: debug
 
 postgres:
-  master_dsn: "postgres://postgres:pass@localhost:5432/shortener?sslmode=disable"
+  master_dsn: "postgres://postgres:pass@localhost:5432/mydb?sslmode=disable"
   slaves_dsn: []
   max_open_conns: 10
   max_idle_conns: 5
-  conn_max_life_time: 20m
+  conn_max_life_time: "20m"
 
 redis:
   addr: "localhost:6379"
   password: ""
   db: 0
-  TTL: 24h
+  ttl: "24h"
+
+rabbit:
+  url: "amqp://guest:guest@localhost:5672/"
+  connection_name: "delayed_notifier"
+  connect_timeout: "10s"
+  heartbeat: "10s"
+  reconnect_strat:
+    attempts: 10
+    delay: "2s"
+    backoff: 2.0
+  producing_strat:
+    attempts: 3
+    delay: "1s"
+    backoff: 1.5
+  consuming_strat:
+    attempts: 3
+    delay: "1s"
+    backoff: 1.5

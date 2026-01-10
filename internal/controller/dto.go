@@ -1,15 +1,15 @@
-package http
+package controller
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/google/uuid"
 )
 
-type NotifyTransportDTO struct {
-	ID          uuid.UUID     `json:"notify_id,omitempty"`
-	Payload     []byte        `json:"payload"`
+type NotifyControllerDTO struct {
+	ID          string        `json:"notify_id,omitempty"`
+	Payload     json.RawMessage        `json:"payload"`
 	Target      string        `json:"target"`
 	Channel     string        `json:"channel"`
 	Status      domain.Status `json:"status"`
@@ -21,15 +21,15 @@ type NotifyTransportDTO struct {
 }
 
 type CreateNotifyRequest struct {
-	ID          uuid.UUID `json:"id"`
-	Payload     string    `json:"payload"`
-	Target      string    `json:"target"`
-	Channel     string    `json:"channel"`
-	ScheduledAt time.Time `json:"scheduled_at"`
+	ID          string          `json:"id"`
+	Payload     json.RawMessage `json:"payload"`
+	Target      string          `json:"target"`
+	Channel     string          `json:"channel"`
+	ScheduledAt time.Time       `json:"scheduled_at"`
 }
 
 type NotifyResponse struct {
-	ID          uuid.UUID     `json:"id"`
+	ID          string        `json:"id"`
 	Status      domain.Status `json:"status"`
 	ScheduledAt time.Time     `json:"scheduled_at"`
 	CreatedAt   time.Time     `json:"created_at"`
@@ -48,7 +48,7 @@ func toResponse(n *domain.Notify) NotifyResponse {
 	}
 }
 
-func toDomain(dto NotifyTransportDTO) *domain.Notify {
+func toDomain(dto NotifyControllerDTO) *domain.Notify {
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,

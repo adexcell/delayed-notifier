@@ -6,28 +6,26 @@ import (
 	"fmt"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/google/uuid"
+	"github.com/adexcell/delayed-notifier/pkg/log"
 )
 
 type NotifyUsecase struct {
+	log      log.Log
 	postgres domain.NotifyPostgres
 	redis    domain.NotifyRedis
 	rabbit   domain.QueueProvider
 }
 
-func NewNotifyUsecase(
-	postgres domain.NotifyPostgres,
-	redis domain.NotifyRedis,
-	rabbit domain.QueueProvider,
-) *NotifyUsecase {
+func New(p domain.NotifyPostgres, redis domain.NotifyRedis, rabbit domain.QueueProvider, l log.Log) *NotifyUsecase {
 	return &NotifyUsecase{
-		postgres: postgres,
+		log:      l,
+		postgres: p,
 		redis:    redis,
 		rabbit:   rabbit,
 	}
 }
 
-func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (uuid.UUID, error) {
+func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (string, error) {
 	_, err := u.postgres.GetNotifyByID(ctx, n.ID)
 	if err == nil {
 		return n.ID, domain.ErrNotifyAlreadyExisis
@@ -37,13 +35,10 @@ func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (uuid.UUID, 
 		return n.ID, fmt.Errorf("failed to create save notify in db: %w", err)
 	}
 
-	if err := u.rabbit.Publish(ctx, n); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to publish in broker: %w", err)
-	}
 	return n.ID, nil
 }
 
-func (u *NotifyUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Notify, error) {
+func (u *NotifyUsecase) GetByID(ctx context.Context, id string) (*domain.Notify, error) {
 	n, err := u.redis.Get(ctx, id)
 	if err == nil {
 		return n, nil
@@ -51,20 +46,19 @@ func (u *NotifyUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Noti
 
 	n, err = u.postgres.GetNotifyByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, domain.ErrNotFoundNotify) {
-			return nil, domain.ErrNotFoundNotify
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.ErrNotFound
 		}
 		return nil, fmt.Errorf("failed to get from db: %w", err)
 	}
 
-	if err := u.redis.Set(ctx, n); err != nil {
+	if err := u.redis.SetWithExpiration(ctx, n); err != nil {
 		return nil, fmt.Errorf("failed to set to redis: %w", err)
 	}
 
 	return n, nil
 }
 
-func (u *NotifyUsecase) Delete(ctx context.Context, id uuid.UUID) error {
+func (u *NotifyUsecase) Delete(ctx context.Context, id string) error {
 	return u.postgres.DeleteByID(ctx, id)
 }
-

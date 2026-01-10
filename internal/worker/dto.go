@@ -4,11 +4,10 @@ import (
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/google/uuid"
 )
 
 type NotifyWorkerDTO struct {
-	ID          uuid.UUID     `json:"id"`
+	ID          string        `json:"id"`
 	Payload     []byte        `json:"payload"`
 	Target      string        `json:"target"`
 	Channel     string        `json:"channel"`

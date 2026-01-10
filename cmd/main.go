@@ -1,30 +1,24 @@
 package main
 
 import (
-	"net/http"
+	"log"
 
-	transport "github.com/adexcell/delayed-notifier/internal/transport/http"
-	"github.com/wb-go/wbf/ginext"
-	"github.com/wb-go/wbf/zlog"
+	"github.com/adexcell/delayed-notifier/cmd/app"
 )
 
+// @title          Delayed Notifier API
+// @version        1.0
+// @description    Delaued Notifier
+// @host           localhost:8080
+// @BasePath       /
+
 func main() {
-	zlog.Init()
+	app, err := app.New()
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 
-	zlog.Logger.Info().Msg("create router")
-	httprouter := ginext.New("debug")
-
-	zlog.Logger.Info().Msg("register notify handler")
-	notifyHandler := transport.NewNotifyHandler()
-	notifyHandler.Register(httprouter)
-
-	httprouter.GET("/", Hello)
-
-	httprouter.Run()
-}
-
-func Hello(c *ginext.Context) {
-	c.JSON(http.StatusOK, ginext.H{
-			"msg": "hello_world",
-		})
+	if err := app.Run(); err != nil {
+		log.Fatalf("error: %v", err)
+	}
 }

@@ -1,14 +1,14 @@
-package redis
+package rabbit
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/google/uuid"
 )
 
-type NotifyRedisDTO struct {
-	ID          uuid.UUID     `json:"notify_id"`
+type NotifyRabbitDTO struct {
+	ID          string        `json:"id"`
 	Payload     []byte        `json:"payload"`
 	Target      string        `json:"target"`
 	Channel     string        `json:"channel"`
@@ -20,8 +20,8 @@ type NotifyRedisDTO struct {
 	LastError   *string       `json:"last_error"`
 }
 
-func toRedisDTO(n *domain.Notify) *NotifyRedisDTO {
-	return &NotifyRedisDTO{
+func toRabbitDTO(n *domain.Notify) ([]byte, error) {
+	rabbitDTO :=  &NotifyRabbitDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,
 		Target:      n.Target,
@@ -33,9 +33,15 @@ func toRedisDTO(n *domain.Notify) *NotifyRedisDTO {
 		RetryCount:  n.RetryCount,
 		LastError:   n.LastError,
 	}
+
+	payload, err := json.Marshal(rabbitDTO)
+	return payload, err
 }
 
-func toDomain(dto NotifyRedisDTO) *domain.Notify {
+func toDomain(payload string) *domain.Notify {
+	var dto NotifyRabbitDTO
+	json.Unmarshal([]byte(payload), &dto)
+
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,

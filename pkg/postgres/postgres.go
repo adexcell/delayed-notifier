@@ -18,7 +18,7 @@ type Config struct {
 	ConnMaxLifetime time.Duration `mapstructure:"conn_max_life_time"`
 }
 
-func NewPostgres(cfg Config) (*DB, error) {
+func New(cfg Config) (*DB, error) {
 	dbOpts := &dbpg.Options{
 		MaxOpenConns:    cfg.MaxOpenConns,
 		MaxIdleConns:    cfg.MaxIdleConns,

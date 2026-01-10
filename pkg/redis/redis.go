@@ -5,17 +5,19 @@ import (
 	"time"
 
 	"github.com/wb-go/wbf/redis"
+	originalRedis "github.com/go-redis/redis/v8"
 )
 
+const RedisError = originalRedis.Nil
 type RDB = redis.Client
 
 type Config struct {
 	Addr     string        `mapstructure:"addr"`
 	Password string        `mapstructure:"password"`
 	DB       int           `mapstructure:"db"`
-	TTL      time.Duration `mapstructure:"TTL"`
+	TTL      time.Duration `mapstructure:"ttl"`
 }
 
-func NewRedis(cfg Config) *RDB {
+func New(cfg Config) *RDB {
 	return redis.New(cfg.Addr, cfg.Password, cfg.DB)
 }

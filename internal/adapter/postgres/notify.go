@@ -8,31 +8,31 @@ import (
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
-	"github.com/google/uuid"
-	"github.com/wb-go/wbf/dbpg"
+	"github.com/adexcell/delayed-notifier/pkg/postgres"
 )
 
-type notifyPostgres struct {
-	db *dbpg.DB
+type Postgres struct {
+	db *postgres.DB
 }
 
-func NewNotifyPostgres(db *dbpg.DB) *notifyPostgres {
-	return &notifyPostgres{db: db}
+func New(cfg postgres.Config) (domain.NotifyPostgres, error) {
+	db, err := postgres.New(cfg)
+	return &Postgres{db: db}, err
 }
 
-func (p *notifyPostgres) Create(ctx context.Context, n *domain.Notify) error {
+func (p *Postgres) Create(ctx context.Context, n *domain.Notify) error {
 	dto := toPostgresDTO(n)
 
 	query := `
-		insert into notify (notify_id, payload, target, channel, status, scheduled_at, created_at)
-		values ($1, $2, $3, $4, $5, $6, $7);`
+		INSERT INTO notify (notify_id, payload, target, channel, status, scheduled_at, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7);`
 
 	_, err := p.db.ExecContext(ctx, query,
 		dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, time.Now().UTC())
 	return err
 }
 
-func (p *notifyPostgres) GetNotifyByID(ctx context.Context, id uuid.UUID) (*domain.Notify, error) {
+func (p *Postgres) GetNotifyByID(ctx context.Context, id string) (*domain.Notify, error) {
 	query := `
 		SELECT notify_id, payload, target, channel, status, scheduled_at
 		FROM notify WHERE notify_id=$1;`
@@ -42,22 +42,22 @@ func (p *notifyPostgres) GetNotifyByID(ctx context.Context, id uuid.UUID) (*doma
 		&dto.ID, &dto.Payload, &dto.Target, &dto.Channel, &dto.Status, &dto.ScheduledAt,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrNotFoundNotify
+		return nil, domain.ErrNotFound
 	}
 	return toDomain(&dto), err
 }
 
-func (p *notifyPostgres) UpdateStatus(
-	ctx context.Context, 
-	id uuid.UUID, 
-	status domain.Status, 
+func (p *Postgres) UpdateStatus(
+	ctx context.Context,
+	id string,
+	status domain.Status,
 	retryCount int,
 	lastErr *string,
 ) error {
 	query := `
 		UPDATE notify
 		SET status      = $2, 
-			retry_count = $3
+			retry_count = $3,
 			last_error  = $4, 
 			updated_at  = NOW()
 		WHERE notify_id = $1;`
@@ -69,12 +69,12 @@ func (p *notifyPostgres) UpdateStatus(
 
 	rows, _ := res.RowsAffected()
 	if rows == 0 {
-		return domain.ErrNotFoundNotify
+		return domain.ErrNotFound
 	}
 	return nil
 }
 
-func (p *notifyPostgres) DeleteByID(ctx context.Context, id uuid.UUID) error {
+func (p *Postgres) DeleteByID(ctx context.Context, id string) error {
 	query := `
 	DELETE FROM notify
 	WHERE notify_id = $1`
@@ -85,7 +85,7 @@ func (p *notifyPostgres) DeleteByID(ctx context.Context, id uuid.UUID) error {
 }
 
 // - обновление статусов у группы notify: StatusPending -> StatusInProcess
-func (p *notifyPostgres) LockAndFetchReady(ctx context.Context, limit int) ([]*domain.Notify, error) {
+func (p *Postgres) LockAndFetchReady(ctx context.Context, limit int) ([]*domain.Notify, error) {
 	query := `
 		WITH selected AS (
 			SELECT notify_id FROM notify
@@ -135,4 +135,8 @@ func (p *notifyPostgres) LockAndFetchReady(ctx context.Context, limit int) ([]*d
 		results = append(results, toDomain(&dto))
 	}
 	return results, nil
+}
+
+func (p *Postgres) Close() error {
+	return p.db.Master.Close()
 }
