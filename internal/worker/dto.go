@@ -19,7 +19,7 @@ type NotifyWorkerDTO struct {
 	LastError   *string       `json:"last_error"`
 }
 
-func toRabbitDTO(n *domain.Notify) *NotifyWorkerDTO {
+func toWorkerDTO(n *domain.Notify) *NotifyWorkerDTO {
 	return &NotifyWorkerDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,

@@ -1,7 +1,9 @@
 package config
 
 import (
-	"github.com/adexcell/delayed-notifier/internal/usecase"
+	"time"
+
+	"github.com/adexcell/delayed-notifier/internal/adapter/sender"
 	"github.com/adexcell/delayed-notifier/pkg/httpserver"
 	"github.com/adexcell/delayed-notifier/pkg/postgres"
 	"github.com/adexcell/delayed-notifier/pkg/rabbit"
@@ -11,18 +13,26 @@ import (
 )
 
 type Config struct {
-	App        App                     `mapstructure:"app"`
-	HTTPServer httpserver.Config       `mapstructure:"httpserver"`
-	Router     router.Config           `mapstructure:"router"`
-	Postgres   postgres.Config         `mapstructure:"postgres"`
-	Redis      redis.Config            `mapstructure:"redis"`
-	Rabbit     rabbit.Config           `mapstructure:"rabbit"`
-	Scheduler  usecase.SchedulerConfig `mapstructure:"scheduler_config"`
+	App        App                   `mapstructure:"app"`
+	HTTPServer httpserver.Config     `mapstructure:"httpserver"`
+	Router     router.Config         `mapstructure:"router"`
+	Postgres   postgres.Config       `mapstructure:"postgres"`
+	Redis      redis.Config          `mapstructure:"redis"`
+	Rabbit     rabbit.Config         `mapstructure:"rabbit"`
+	Notifier   NotifierConfig        `mapstructure:"notifier"`
+	Telegram   sender.TelegramConfig `mapstructure:"telegram"`
 }
 
 type App struct {
 	AppName    string `mapstructure:"app_name"`
 	AppVersion string `mapstructure:"app_version"`
+}
+
+type NotifierConfig struct {
+	MaxRetries        int           `mapstructure:"max_retries"`
+	VisibilityTimeout time.Duration `mapstructure:"visibility_timeout"`
+	Interval          time.Duration `mapstructure:"interval"`
+	BatchSize         int           `mapstructure:"batch_size"`
 }
 
 func Load() (*Config, error) {

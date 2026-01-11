@@ -16,7 +16,12 @@ type NotifyUsecase struct {
 	rabbit   domain.QueueProvider
 }
 
-func New(p domain.NotifyPostgres, redis domain.NotifyRedis, rabbit domain.QueueProvider, l log.Log) *NotifyUsecase {
+func New(
+	p domain.NotifyPostgres, 
+	redis domain.NotifyRedis, 
+	rabbit domain.QueueProvider, 
+	l log.Log,
+	) domain.NotifyUsecase {
 	return &NotifyUsecase{
 		log:      l,
 		postgres: p,

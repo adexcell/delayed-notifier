@@ -11,9 +11,11 @@ import (
 	"github.com/adexcell/delayed-notifier/internal/adapter/postgres"
 	"github.com/adexcell/delayed-notifier/internal/adapter/rabbit"
 	"github.com/adexcell/delayed-notifier/internal/adapter/redis"
+	"github.com/adexcell/delayed-notifier/internal/adapter/sender"
 	"github.com/adexcell/delayed-notifier/internal/controller"
 	"github.com/adexcell/delayed-notifier/internal/domain"
 	"github.com/adexcell/delayed-notifier/internal/usecase"
+	"github.com/adexcell/delayed-notifier/internal/worker"
 	"github.com/adexcell/delayed-notifier/pkg/httpserver"
 	"github.com/adexcell/delayed-notifier/pkg/log"
 	"github.com/adexcell/delayed-notifier/pkg/router"
@@ -24,9 +26,11 @@ import (
 type App struct {
 	cfg       *config.Config
 	log       log.Log
+	rabbit    domain.QueueProvider
 	router    *router.Router
 	server    *http.Server
 	scheduler domain.Scheduler
+	worker    *worker.NotifyConsumer
 	closers   []func() error
 }
 
@@ -58,6 +62,11 @@ func (a *App) Run() error {
 	srv.Start()
 
 	go a.scheduler.Run(ctx)
+	go func() {
+		if err := a.rabbit.Consume(ctx, a.worker.Handle); err != nil {
+			a.log.Error().Err(err).Msg("RabbitMQ consumer stopped")
+		}
+	}()
 
 	<-ctx.Done()
 	a.log.Info().Msg("Shutting down application...")
@@ -81,12 +90,22 @@ func (a *App) initDependencies() error {
 	// Rabbit init, declare Queue
 	rabbit, err := rabbit.NewRabbitQueueAdapter(a.cfg.Rabbit)
 	if err != nil {
+		return fmt.Errorf("failed to connect Rabbit: %w", err)
+	}
+	if err := rabbit.Init(); err != nil {
 		return fmt.Errorf("failed to init Rabbit: %w", err)
 	}
 	a.addCloser(rabbit.Close)
 
 	// Init Scheduler - producer for notifies
-	a.scheduler = usecase.NewScheduler(postgres, rabbit, a.cfg.Scheduler, a.log)
+	a.scheduler = usecase.NewScheduler(postgres, rabbit, a.cfg.Notifier, a.log)
+
+	// Init Worker - consumer for notifies
+	senders := map[string]domain.Sender{
+		"email": sender.NewEmailSender(a.log),
+		"telegram": sender.NewTelegramSender(a.cfg.Telegram.Token, a.log),
+	}
+	a.worker = worker.NewNotifyConsumer(a.cfg.Notifier, postgres, rabbit, redis, senders, a.log)
 
 	// Inject dependencies
 	notifyUsecase := usecase.New(postgres, redis, rabbit, a.log)

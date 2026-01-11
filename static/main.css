@@ -1,0 +1,21 @@
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; }
+.card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+h1, h2 { margin-top: 0; }
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+textarea { height: 80px; }
+.btn-primary { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+.btn-secondary { background: #6c757d; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+.header-with-btn { display: flex; justify-content: space-between; align-items: center; }
+
+/* Статусы */
+.status-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+.status-0 { background: #fff3cd; color: #856404; } /* Pending */
+.status-1 { background: #cce5ff; color: #004085; } /* InProcess */
+.status-2 { background: #d4edda; color: #155724; } /* Sent */
+.status-3 { background: #f8d7da; color: #721c24; } /* Failed */
+.status-4 { background: #e2e3e5; color: #383d41; } /* Canceled */

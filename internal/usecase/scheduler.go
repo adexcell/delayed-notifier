@@ -4,39 +4,35 @@ import (
 	"context"
 	"time"
 
+	"github.com/adexcell/delayed-notifier/config"
 	"github.com/adexcell/delayed-notifier/internal/domain"
 	"github.com/adexcell/delayed-notifier/pkg/log"
 )
 
-const (
-	maxRetries int = 3
-)
-
-type SchedulerConfig struct {
-	Interval  time.Duration `mapstructure:"interval"`
-	BatchSize int `mapstructure:"batch_size"`
-}
-
 type Scheduler struct {
-	postgres  domain.NotifyPostgres
-	rabbit    domain.QueueProvider
-	interval  time.Duration
-	batchSize int // количество одновременно обрабатываемых уведомлений
-	log       log.Log
+	postgres          domain.NotifyPostgres
+	rabbit            domain.QueueProvider
+	interval          time.Duration
+	batchSize         int
+	maxRetries        int
+	visibilityTimeout time.Duration
+	log               log.Log
 }
 
 func NewScheduler(
 	postgres domain.NotifyPostgres,
 	rabbit domain.QueueProvider,
-	cfg SchedulerConfig,
+	cfg config.NotifierConfig,
 	log log.Log,
 ) domain.Scheduler {
 	return &Scheduler{
-		postgres:  postgres,
-		rabbit:    rabbit,
-		interval:  cfg.Interval,
-		batchSize: cfg.BatchSize,
-		log:       log,
+		postgres:          postgres,
+		rabbit:            rabbit,
+		interval:          cfg.Interval,
+		batchSize:         cfg.BatchSize,
+		maxRetries:        cfg.MaxRetries,
+		visibilityTimeout: cfg.VisibilityTimeout,
+		log:               log,
 	}
 }
 
@@ -59,7 +55,7 @@ func (s *Scheduler) Run(ctx context.Context) {
 
 func (s *Scheduler) process(ctx context.Context) {
 	// забираем пачку уведомлений из БД (StatusPending -> StatusInProcess)
-	notifies, err := s.postgres.LockAndFetchReady(ctx, s.batchSize)
+	notifies, err := s.postgres.LockAndFetchReady(ctx, s.batchSize, s.visibilityTimeout)
 	if err != nil {
 		s.log.Error().Err(err).Msg("Scheduler: failed to fetch notifies from db")
 	}
@@ -75,7 +71,7 @@ func (s *Scheduler) process(ctx context.Context) {
 
 			var status domain.Status
 
-			if n.RetryCount <= maxRetries {
+			if n.RetryCount <= s.maxRetries {
 				n.RetryCount += 1
 				status = domain.StatusPending
 			} else {
@@ -83,7 +79,9 @@ func (s *Scheduler) process(ctx context.Context) {
 				status = domain.StatusFailed
 			}
 
-			_ = s.postgres.UpdateStatus(ctx, n.ID, status, n.RetryCount, &errStr)
+			if err := s.postgres.UpdateStatus(ctx, n.ID, status, &n.ScheduledAt, n.RetryCount, &errStr); err != nil {
+				s.log.Error().Err(err).Msg("Scheduler: failed to update status in db")
+			}
 		}
 	}
 }

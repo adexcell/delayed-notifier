@@ -15,7 +15,6 @@ const (
 	StatusCanceled                // 4 - отменено пользователем
 )
 
-
 // Формат ID - uuid.UUID из пакета "github.com/google/uuid" приведенный в формат string
 type Notify struct {
 	ID          string
@@ -33,9 +32,16 @@ type Notify struct {
 type NotifyPostgres interface {
 	Create(ctx context.Context, n *Notify) error
 	GetNotifyByID(ctx context.Context, id string) (*Notify, error)
-	UpdateStatus(ctx context.Context, id string, status Status, retryCount int, lastErr *string) error
+	UpdateStatus(
+		ctx context.Context, 
+		id string, 
+		status Status, 
+		scheduledAt *time.Time, 
+		retryCount int, 
+		lastErr *string,
+		) error
 	DeleteByID(ctx context.Context, id string) error
-	LockAndFetchReady(ctx context.Context, limit int) ([]*Notify, error)
+	LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration,) ([]*Notify, error)
 	Close() error
 }
 
@@ -55,7 +61,15 @@ type Scheduler interface {
 	Run(ctx context.Context)
 }
 
+type MessageHandler func(ctx context.Context, payload []byte) error
+
 type QueueProvider interface {
+	Init() error
 	Publish(ctx context.Context, n *Notify) error
+	Consume(ctx context.Context, handler MessageHandler) error
 	Close() error
+}
+
+type Sender interface {
+	Send(ctx context.Context, n *Notify) error
 }
