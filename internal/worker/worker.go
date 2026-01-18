@@ -30,12 +30,12 @@ func NewNotifyConsumer(
 	log log.Log,
 ) *NotifyConsumer {
 	return &NotifyConsumer{
-		postgres: postgres,
-		rabbit:   rabbit,
-		redis:    redis,
-		senders:  senders,
+		postgres:   postgres,
+		rabbit:     rabbit,
+		redis:      redis,
+		senders:    senders,
 		maxRetries: cfg.MaxRetries,
-		log:      log,
+		log:        log,
 	}
 }
 
@@ -83,7 +83,7 @@ func (c *NotifyConsumer) Handle(ctx context.Context, payload []byte) error {
 			Msgf("Consumer: send failed")
 		errStr := err.Error()
 		dto.RetryCount++
-		if dto.RetryCount <= c.maxRetries {
+		if dto.RetryCount < c.maxRetries {
 			dto.ScheduledAt = time.Now().Add(time.Duration(dto.RetryCount * dto.RetryCount * int(time.Minute)))
 			_ = c.postgres.UpdateStatus(ctx, dto.ID, domain.StatusPending, &dto.ScheduledAt, dto.RetryCount, &errStr)
 			return nil

@@ -1,3 +1,0 @@
-package rabbit
-
-func NewPublisher()

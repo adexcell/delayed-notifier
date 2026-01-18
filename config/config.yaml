@@ -1,5 +1,5 @@
 app:
-  app_name: "shortener"
+  app_name: "delayed notifier"
   app_version: "0.0.1"
 
 notifier:
@@ -12,7 +12,7 @@ telegram:
   token:
 
 httpserver:
-  port: "8080"
+  addr: ":8080"
   shutdown_timeout: "5s"
 
 router:

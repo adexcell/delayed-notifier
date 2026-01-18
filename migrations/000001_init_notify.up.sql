@@ -1,4 +1,4 @@
-create table if not exists notify (
+CREATE TABLE IF NOT EXISTS notify (
     notify_id UUID primary key,
     payload JSONB not null,
     target varchar(255) not null,
@@ -11,5 +11,7 @@ create table if not exists notify (
     last_error text
 );
 
-Create Index idx_notify_status_scheduled on notify(status, scheduled_at)
+CREATE INDEX IF NOT EXISTS idx_notify_status_scheduled ON notify(status, scheduled_at)
 where status = 0;
+
+CREATE INDEX IF NOT EXISTS idx_notify_created_at ON notify(created_at DESC);

@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"time"
+
+	"github.com/adexcell/delayed-notifier/pkg/utils/uuid"
 )
 
 type Status int
@@ -29,19 +31,30 @@ type Notify struct {
 	LastError   *string
 }
 
+func NewNotify() *Notify {
+	return &Notify{
+		ID:         uuid.New(),
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+		RetryCount: 0,
+		LastError:  nil,
+	}
+}
+
 type NotifyPostgres interface {
 	Create(ctx context.Context, n *Notify) error
 	GetNotifyByID(ctx context.Context, id string) (*Notify, error)
 	UpdateStatus(
-		ctx context.Context, 
-		id string, 
-		status Status, 
-		scheduledAt *time.Time, 
-		retryCount int, 
+		ctx context.Context,
+		id string,
+		status Status,
+		scheduledAt *time.Time,
+		retryCount int,
 		lastErr *string,
-		) error
+	) error
 	DeleteByID(ctx context.Context, id string) error
-	LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration,) ([]*Notify, error)
+	LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration) ([]*Notify, error)
+	List(ctx context.Context, limit, offset int) ([]*Notify, error)
 	Close() error
 }
 
@@ -49,6 +62,7 @@ type NotifyUsecase interface {
 	Save(ctx context.Context, n *Notify) (string, error)
 	GetByID(ctx context.Context, id string) (*Notify, error)
 	Delete(ctx context.Context, id string) error
+	List(ctx context.Context, limit, offset int) ([]*Notify, error)
 }
 
 type NotifyRedis interface {

@@ -19,10 +19,10 @@ type Config struct {
 
 func NewClient(cfg Config) (*rabbitmq.RabbitClient, error) {
 	clientCfg := rabbitmq.ClientConfig{
-		URL: cfg.URL,
+		URL:            cfg.URL,
 		ConnectionName: cfg.ConnectionName,
 		ConnectTimeout: cfg.ConnectTimeout,
-		Heartbeat: cfg.Heartbeat,
+		Heartbeat:      cfg.Heartbeat,
 		ReconnectStrat: cfg.ReconnectStrat,
 		ProducingStrat: cfg.ProducingStrat,
 		ConsumingStrat: cfg.ConsumingStrat,

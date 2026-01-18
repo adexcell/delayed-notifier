@@ -2,6 +2,7 @@ package rabbit
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -55,12 +56,10 @@ func (q *NotifyQueueAdapter) Init() error {
 }
 
 func (q *NotifyQueueAdapter) Publish(ctx context.Context, n *domain.Notify) error {
-	delay := time.Until(n.ScheduledAt)
-	if delay < 0 {
-		delay = 0
-	}
+	delay := max(time.Until(n.ScheduledAt), 0)
 
-	body, err := toRabbitDTO(n)
+	dto := toRabbitDTO(n)
+	body, err := json.Marshal(dto)
 	if err != nil {
 		return fmt.Errorf("marshal notify: %w", err)
 	}

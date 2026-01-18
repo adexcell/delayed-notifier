@@ -4,11 +4,12 @@ package redis
 import (
 	"time"
 
-	"github.com/wb-go/wbf/redis"
 	originalRedis "github.com/go-redis/redis/v8"
+	"github.com/wb-go/wbf/redis"
 )
 
 const RedisError = originalRedis.Nil
+
 type RDB = redis.Client
 
 type Config struct {

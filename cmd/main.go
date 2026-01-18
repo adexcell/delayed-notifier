@@ -8,7 +8,7 @@ import (
 
 // @title          Delayed Notifier API
 // @version        1.0
-// @description    Delaued Notifier
+// @description    Delayed Notifier
 // @host           localhost:8080
 // @BasePath       /
 

@@ -21,6 +21,7 @@ type Config struct {
 	Rabbit     rabbit.Config         `mapstructure:"rabbit"`
 	Notifier   NotifierConfig        `mapstructure:"notifier"`
 	Telegram   sender.TelegramConfig `mapstructure:"telegram"`
+	Email sender.EmailConfig    `mapstructure:"email"`
 }
 
 type App struct {

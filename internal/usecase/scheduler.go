@@ -71,7 +71,7 @@ func (s *Scheduler) process(ctx context.Context) {
 
 			var status domain.Status
 
-			if n.RetryCount <= s.maxRetries {
+			if n.RetryCount < s.maxRetries {
 				n.RetryCount += 1
 				status = domain.StatusPending
 			} else {

@@ -1,8 +1,8 @@
 DC := docker compose
-PROJECT := delayed notifier
-APP_SERVICE := delayed notifier
+PROJECT := delayed_notifier
+APP_SERVICE := delayed_notifier
 MIGRATIONS_DIR := ./migrations
-LOCAL_DSN := "postgres://postgres:pass@localhost:5432/delayed_notifier?sslmode=disable"
+LOCAL_DSN := "postgres://postgres:postgres@localhost:5432/mydb?sslmode=disable"
 
 .PHONY: help
 help: ## Список команд
@@ -12,6 +12,32 @@ help: ## Список команд
 .PHONY: test
 test: ## Запуск unit-тестов
 	go test -v ./internal/... ./pkg/... ./cmd/... ./config/...
+
+.PHONY: test-coverage
+test-coverage: ## Запуск тестов с отчетом покрытия
+	go test -v -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report: coverage.html"
+
+.PHONY: test-short
+test-short: ## Быстрые тесты (без race detector)
+	go test -v -short ./...
+
+.PHONY: generate-mocks
+generate-mocks: ## Генерация моков
+	go generate ./internal/mocks
+
+.PHONY: test-usecase
+test-usecase: ## Тесты use case слоя
+	go test -v ./internal/usecase/...
+
+.PHONY: test-controller
+test-controller: ## Тесты controller слоя
+	go test -v ./internal/controller/...
+
+.PHONY: test-worker
+test-worker: ## Тесты worker слоя
+	go test -v ./internal/worker/...
 
 .PHONY: start
 start: test ## Запуск всего проекта в Docker (DB + Migrations + App)

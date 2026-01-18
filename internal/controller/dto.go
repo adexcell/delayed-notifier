@@ -8,16 +8,16 @@ import (
 )
 
 type NotifyControllerDTO struct {
-	ID          string        `json:"notify_id,omitempty"`
-	Payload     json.RawMessage        `json:"payload"`
-	Target      string        `json:"target"`
-	Channel     string        `json:"channel"`
-	Status      domain.Status `json:"status"`
-	ScheduledAt time.Time     `json:"scheduled_at"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at,omitempty"`
-	RetryCount  int           `json:"retry_count,omitempty"`
-	LastError   *string       `json:"last_error,omitempty"`
+	ID          string          `json:"notify_id,omitempty"`
+	Payload     json.RawMessage `json:"payload"`
+	Target      string          `json:"target"`
+	Channel     string          `json:"channel"`
+	Status      domain.Status   `json:"status"`
+	ScheduledAt time.Time       `json:"scheduled_at"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at,omitempty"`
+	RetryCount  int             `json:"retry_count,omitempty"`
+	LastError   *string         `json:"last_error,omitempty"`
 }
 
 type CreateNotifyRequest struct {

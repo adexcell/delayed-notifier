@@ -28,7 +28,7 @@ func (p *Postgres) Create(ctx context.Context, n *domain.Notify) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7);`
 
 	_, err := p.db.ExecContext(ctx, query,
-		dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, time.Now().UTC())
+		dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, dto.CreatedAt)
 	return err
 }
 
@@ -54,7 +54,7 @@ func (p *Postgres) UpdateStatus(
 	scheduledAt *time.Time,
 	retryCount int,
 	lastErr *string,
-	
+
 ) error {
 	query := `
 		UPDATE notify
@@ -93,7 +93,7 @@ func (p *Postgres) LockAndFetchReady(ctx context.Context, limit int, visibilityT
 		WITH selected AS (
 			SELECT notify_id FROM notify
 			WHERE (status = $1 AND scheduled_at <= NOW())
-   				OR (status = $2 AND updated_at <= NOW() - make_interval(secs => $5))
+   				OR (status = $2 AND COALESCE(updated_at, created_at) <= NOW() - make_interval(secs => $5))
 			ORDER BY scheduled_at ASC
 			LIMIT $3
 			FOR UPDATE SKIP LOCKED
@@ -114,11 +114,11 @@ func (p *Postgres) LockAndFetchReady(ctx context.Context, limit int, visibilityT
 					notify.last_error;`
 
 	rows, err := p.db.QueryContext(
-		ctx, 
-		query, 
-		domain.StatusPending, 
-		domain.StatusInProcess, 
-		limit, 
+		ctx,
+		query,
+		domain.StatusPending,
+		domain.StatusInProcess,
+		limit,
 		domain.StatusInProcess,
 		int(visibilityTimeout.Seconds()),
 	)
@@ -151,17 +151,43 @@ func (p *Postgres) LockAndFetchReady(ctx context.Context, limit int, visibilityT
 
 func (p *Postgres) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) {
 	query := `
-		SELECT notify_id, payload, target, channel, status, scheduled_at
-		FROM notify WHERE updated_at >= NOW() - make_interval(secs => $1)
-		LIMIT $2 OFFSET $3;`
+		SELECT 
+			notify_id, payload, target, channel, status, 
+			scheduled_at, created_at, updated_at, retry_count, last_error
+		FROM notify
+		ORDER BY created_at DESC 
+		LIMIT $1
+		OFFSET $2;`
 
-	var dto notifyPostgresDTO
-
-	rows, err := p.db.QueryContext(ctx, query, id)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrNotFound
+	rows, err := p.db.QueryContext(ctx, query, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("postgres: failed to get list of notifies")
 	}
-	return toDomain(&dto), err
+	if rows == nil {
+		return nil, nil
+	}
+	defer rows.Close()
+
+	var results []*domain.Notify
+	for rows.Next() {
+		var dto notifyPostgresDTO
+		if err := rows.Scan(
+			&dto.ID,
+			&dto.Payload,
+			&dto.Target,
+			&dto.Channel,
+			&dto.Status,
+			&dto.ScheduledAt,
+			&dto.CreatedAt,
+			&dto.UpdatedAt,
+			&dto.RetryCount,
+			&dto.LastError,
+		); err != nil {
+			return nil, err
+		}
+		results = append(results, toDomain(&dto))
+	}
+	return results, nil
 }
 
 func (p *Postgres) Close() error {

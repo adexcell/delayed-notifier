@@ -17,11 +17,11 @@ type NotifyUsecase struct {
 }
 
 func New(
-	p domain.NotifyPostgres, 
-	redis domain.NotifyRedis, 
-	rabbit domain.QueueProvider, 
+	p domain.NotifyPostgres,
+	redis domain.NotifyRedis,
+	rabbit domain.QueueProvider,
 	l log.Log,
-	) domain.NotifyUsecase {
+) domain.NotifyUsecase {
 	return &NotifyUsecase{
 		log:      l,
 		postgres: p,
@@ -33,7 +33,7 @@ func New(
 func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (string, error) {
 	_, err := u.postgres.GetNotifyByID(ctx, n.ID)
 	if err == nil {
-		return n.ID, domain.ErrNotifyAlreadyExisis
+		return n.ID, domain.ErrNotifyAlreadyExists
 	}
 
 	if err := u.postgres.Create(ctx, n); err != nil {
@@ -62,6 +62,10 @@ func (u *NotifyUsecase) GetByID(ctx context.Context, id string) (*domain.Notify,
 	}
 
 	return n, nil
+}
+
+func (u *NotifyUsecase) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) {
+	return u.postgres.List(ctx, limit, offset)
 }
 
 func (u *NotifyUsecase) Delete(ctx context.Context, id string) error {

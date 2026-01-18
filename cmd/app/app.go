@@ -95,6 +95,7 @@ func (a *App) initDependencies() error {
 	if err := rabbit.Init(); err != nil {
 		return fmt.Errorf("failed to init Rabbit: %w", err)
 	}
+	a.rabbit = rabbit
 	a.addCloser(rabbit.Close)
 
 	// Init Scheduler - producer for notifies
@@ -102,7 +103,7 @@ func (a *App) initDependencies() error {
 
 	// Init Worker - consumer for notifies
 	senders := map[string]domain.Sender{
-		"email": sender.NewEmailSender(a.log),
+		"email":    sender.NewEmailSender(a.cfg.Email, a.log),
 		"telegram": sender.NewTelegramSender(a.cfg.Telegram.Token, a.log),
 	}
 	a.worker = worker.NewNotifyConsumer(a.cfg.Notifier, postgres, rabbit, redis, senders, a.log)

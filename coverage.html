@@ -1,0 +1,2429 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>app: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/adexcell/delayed-notifier/cmd/app/app.go (0.0%)</option>
+				
+				<option value="file1">github.com/adexcell/delayed-notifier/cmd/main.go (0.0%)</option>
+				
+				<option value="file2">github.com/adexcell/delayed-notifier/config/config.go (0.0%)</option>
+				
+				<option value="file3">github.com/adexcell/delayed-notifier/internal/adapter/postgres/dto.go (100.0%)</option>
+				
+				<option value="file4">github.com/adexcell/delayed-notifier/internal/adapter/postgres/notify.go (0.0%)</option>
+				
+				<option value="file5">github.com/adexcell/delayed-notifier/internal/adapter/rabbit/dto.go (0.0%)</option>
+				
+				<option value="file6">github.com/adexcell/delayed-notifier/internal/adapter/rabbit/rabbitmq_adapter.go (0.0%)</option>
+				
+				<option value="file7">github.com/adexcell/delayed-notifier/internal/adapter/redis/dto.go (0.0%)</option>
+				
+				<option value="file8">github.com/adexcell/delayed-notifier/internal/adapter/redis/notify.go (0.0%)</option>
+				
+				<option value="file9">github.com/adexcell/delayed-notifier/internal/adapter/sender/email.go (33.3%)</option>
+				
+				<option value="file10">github.com/adexcell/delayed-notifier/internal/adapter/sender/telegram.go (5.0%)</option>
+				
+				<option value="file11">github.com/adexcell/delayed-notifier/internal/controller/dto.go (100.0%)</option>
+				
+				<option value="file12">github.com/adexcell/delayed-notifier/internal/controller/notify.go (81.2%)</option>
+				
+				<option value="file13">github.com/adexcell/delayed-notifier/internal/domain/notify.go (0.0%)</option>
+				
+				<option value="file14">github.com/adexcell/delayed-notifier/internal/mocks/mock_postgres.go (0.0%)</option>
+				
+				<option value="file15">github.com/adexcell/delayed-notifier/internal/mocks/mock_queue.go (0.0%)</option>
+				
+				<option value="file16">github.com/adexcell/delayed-notifier/internal/mocks/mock_redis.go (0.0%)</option>
+				
+				<option value="file17">github.com/adexcell/delayed-notifier/internal/mocks/mock_sender.go (0.0%)</option>
+				
+				<option value="file18">github.com/adexcell/delayed-notifier/internal/mocks/mock_usecase.go (0.0%)</option>
+				
+				<option value="file19">github.com/adexcell/delayed-notifier/internal/usecase/notify.go (85.0%)</option>
+				
+				<option value="file20">github.com/adexcell/delayed-notifier/internal/usecase/scheduler.go (57.7%)</option>
+				
+				<option value="file21">github.com/adexcell/delayed-notifier/internal/worker/dto.go (50.0%)</option>
+				
+				<option value="file22">github.com/adexcell/delayed-notifier/internal/worker/worker.go (85.0%)</option>
+				
+				<option value="file23">github.com/adexcell/delayed-notifier/pkg/httpserver/httpserver.go (0.0%)</option>
+				
+				<option value="file24">github.com/adexcell/delayed-notifier/pkg/log/log.go (0.0%)</option>
+				
+				<option value="file25">github.com/adexcell/delayed-notifier/pkg/postgres/error.go (0.0%)</option>
+				
+				<option value="file26">github.com/adexcell/delayed-notifier/pkg/postgres/postgres.go (0.0%)</option>
+				
+				<option value="file27">github.com/adexcell/delayed-notifier/pkg/rabbit/client.go (0.0%)</option>
+				
+				<option value="file28">github.com/adexcell/delayed-notifier/pkg/redis/redis.go (0.0%)</option>
+				
+				<option value="file29">github.com/adexcell/delayed-notifier/pkg/router/http_v1.go (0.0%)</option>
+				
+				<option value="file30">github.com/adexcell/delayed-notifier/pkg/utils/uuid/uuid.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package app
+
+import (
+        "context"
+        "fmt"
+        "net/http"
+        "os/signal"
+        "syscall"
+
+        "github.com/adexcell/delayed-notifier/config"
+        "github.com/adexcell/delayed-notifier/internal/adapter/postgres"
+        "github.com/adexcell/delayed-notifier/internal/adapter/rabbit"
+        "github.com/adexcell/delayed-notifier/internal/adapter/redis"
+        "github.com/adexcell/delayed-notifier/internal/adapter/sender"
+        "github.com/adexcell/delayed-notifier/internal/controller"
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/internal/usecase"
+        "github.com/adexcell/delayed-notifier/internal/worker"
+        "github.com/adexcell/delayed-notifier/pkg/httpserver"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+        "github.com/adexcell/delayed-notifier/pkg/router"
+        swaggerFiles "github.com/swaggo/files"
+        ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+type App struct {
+        cfg       *config.Config
+        log       log.Log
+        rabbit    domain.QueueProvider
+        router    *router.Router
+        server    *http.Server
+        scheduler domain.Scheduler
+        worker    *worker.NotifyConsumer
+        closers   []func() error
+}
+
+func New() (*App, error) <span class="cov0" title="0">{
+        cfg, err := config.Load()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to load config: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">log := log.New()
+
+        return &amp;App{
+                cfg:    cfg,
+                log:    log,
+                router: router.New(cfg.Router),
+        }, nil</span>
+}
+
+func (a *App) Run() error <span class="cov0" title="0">{
+        ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+        defer stop()
+
+        if err := a.initDependencies(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">srv := httpserver.New(a.router, a.cfg.HTTPServer, a.log)
+        a.addCloser(srv.Close)
+        srv.Start()
+
+        go a.scheduler.Run(ctx)
+        go func() </span><span class="cov0" title="0">{
+                if err := a.rabbit.Consume(ctx, a.worker.Handle); err != nil </span><span class="cov0" title="0">{
+                        a.log.Error().Err(err).Msg("RabbitMQ consumer stopped")
+                }</span>
+        }()
+
+        <span class="cov0" title="0">&lt;-ctx.Done()
+        a.log.Info().Msg("Shutting down application...")
+        a.shutdown()
+
+        return nil</span>
+}
+
+func (a *App) initDependencies() error <span class="cov0" title="0">{
+        // Postgres init
+        postgres, err := postgres.New(a.cfg.Postgres)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to init Postgres: %w", err)
+        }</span>
+        <span class="cov0" title="0">a.addCloser(postgres.Close)
+
+        // Redis init
+        redis := redis.New(a.cfg.Redis)
+        a.addCloser(redis.Close)
+
+        // Rabbit init, declare Queue
+        rabbit, err := rabbit.NewRabbitQueueAdapter(a.cfg.Rabbit)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to connect Rabbit: %w", err)
+        }</span>
+        <span class="cov0" title="0">if err := rabbit.Init(); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to init Rabbit: %w", err)
+        }</span>
+        <span class="cov0" title="0">a.addCloser(rabbit.Close)
+
+        // Init Scheduler - producer for notifies
+        a.scheduler = usecase.NewScheduler(postgres, rabbit, a.cfg.Notifier, a.log)
+
+        // Init Worker - consumer for notifies
+        senders := map[string]domain.Sender{
+                "email":    sender.NewEmailSender(a.cfg.Email, a.log),
+                "telegram": sender.NewTelegramSender(a.cfg.Telegram.Token, a.log),
+        }
+        a.worker = worker.NewNotifyConsumer(a.cfg.Notifier, postgres, rabbit, redis, senders, a.log)
+
+        // Inject dependencies
+        notifyUsecase := usecase.New(postgres, redis, rabbit, a.log)
+        notifyHandler := controller.NewNotifyHandler(notifyUsecase, a.log)
+
+        // Add static to router, register routers and swagger
+        a.router.Static("/static", "./static")
+        a.router.StaticFile("/", "./static/index.html")
+
+        notifyHandler.Register(a.router)
+
+        a.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+        return nil</span>
+}
+
+func (a *App) addCloser(closer func() error) <span class="cov0" title="0">{
+        a.closers = append(a.closers, closer)
+}</span>
+
+func (a *App) shutdown() <span class="cov0" title="0">{
+        for i := len(a.closers) - 1; i &gt;= 0; i-- </span><span class="cov0" title="0">{
+                if err := a.closers[i](); err != nil </span><span class="cov0" title="0">{
+                        a.log.Error().Err(err).Msg("failed to close resource")
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "log"
+
+        "github.com/adexcell/delayed-notifier/cmd/app"
+)
+
+// @title          Delayed Notifier API
+// @version        1.0
+// @description    Delayed Notifier
+// @host           localhost:8080
+// @BasePath       /
+
+func main() <span class="cov0" title="0">{
+        app, err := app.New()
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("error: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := app.Run(); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("error: %v", err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package config
+
+import (
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/adapter/sender"
+        "github.com/adexcell/delayed-notifier/pkg/httpserver"
+        "github.com/adexcell/delayed-notifier/pkg/postgres"
+        "github.com/adexcell/delayed-notifier/pkg/rabbit"
+        "github.com/adexcell/delayed-notifier/pkg/redis"
+        "github.com/adexcell/delayed-notifier/pkg/router"
+        "github.com/wb-go/wbf/config"
+)
+
+type Config struct {
+        App        App                   `mapstructure:"app"`
+        HTTPServer httpserver.Config     `mapstructure:"httpserver"`
+        Router     router.Config         `mapstructure:"router"`
+        Postgres   postgres.Config       `mapstructure:"postgres"`
+        Redis      redis.Config          `mapstructure:"redis"`
+        Rabbit     rabbit.Config         `mapstructure:"rabbit"`
+        Notifier   NotifierConfig        `mapstructure:"notifier"`
+        Telegram   sender.TelegramConfig `mapstructure:"telegram"`
+        Email sender.EmailConfig    `mapstructure:"email"`
+}
+
+type App struct {
+        AppName    string `mapstructure:"app_name"`
+        AppVersion string `mapstructure:"app_version"`
+}
+
+type NotifierConfig struct {
+        MaxRetries        int           `mapstructure:"max_retries"`
+        VisibilityTimeout time.Duration `mapstructure:"visibility_timeout"`
+        Interval          time.Duration `mapstructure:"interval"`
+        BatchSize         int           `mapstructure:"batch_size"`
+}
+
+func Load() (*Config, error) <span class="cov0" title="0">{
+        cfg := config.New()
+
+        cfg.EnableEnv("")
+
+        _ = cfg.LoadEnvFiles(".env")
+
+        if err := cfg.LoadConfigFiles("config/config.yaml"); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">var res Config
+        if err := cfg.Unmarshal(&amp;res); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return &amp;res, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package postgres
+
+import (
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+)
+
+type notifyPostgresDTO struct {
+        ID          string        `db:"notify_id"`
+        Payload     []byte        `db:"payload"`
+        Target      string        `db:"target"`
+        Channel     string        `db:"channel"`
+        Status      domain.Status `db:"status"`
+        ScheduledAt time.Time     `db:"scheduled_at"`
+        CreatedAt   time.Time     `db:"created_at"`
+        UpdatedAt   time.Time     `db:"updated_at"`
+        RetryCount  int           `db:"retry_count"`
+        LastError   *string       `db:"last_error"`
+}
+
+func toPostgresDTO(n *domain.Notify) *notifyPostgresDTO <span class="cov8" title="1">{
+        return &amp;notifyPostgresDTO{
+                ID:          n.ID,
+                Payload:     n.Payload,
+                Target:      n.Target,
+                Channel:     n.Channel,
+                Status:      n.Status,
+                ScheduledAt: n.ScheduledAt,
+                CreatedAt:   n.CreatedAt,
+                UpdatedAt:   n.UpdatedAt,
+                RetryCount:  n.RetryCount,
+                LastError:   n.LastError,
+        }
+}</span>
+
+func toDomain(dto *notifyPostgresDTO) *domain.Notify <span class="cov8" title="1">{
+        return &amp;domain.Notify{
+                ID:          dto.ID,
+                Payload:     dto.Payload,
+                Target:      dto.Target,
+                Channel:     dto.Channel,
+                Status:      dto.Status,
+                ScheduledAt: dto.ScheduledAt,
+                CreatedAt:   dto.CreatedAt,
+                UpdatedAt:   dto.UpdatedAt,
+                RetryCount:  dto.RetryCount,
+                LastError:   dto.LastError,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package postgres
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/postgres"
+)
+
+type Postgres struct {
+        db *postgres.DB
+}
+
+func New(cfg postgres.Config) (domain.NotifyPostgres, error) <span class="cov0" title="0">{
+        db, err := postgres.New(cfg)
+        return &amp;Postgres{db: db}, err
+}</span>
+
+func (p *Postgres) Create(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        dto := toPostgresDTO(n)
+
+        query := `
+                INSERT INTO notify (notify_id, payload, target, channel, status, scheduled_at, created_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7);`
+
+        _, err := p.db.ExecContext(ctx, query,
+                dto.ID, dto.Payload, dto.Target, dto.Channel, dto.Status, dto.ScheduledAt, dto.CreatedAt)
+        return err
+}</span>
+
+func (p *Postgres) GetNotifyByID(ctx context.Context, id string) (*domain.Notify, error) <span class="cov0" title="0">{
+        query := `
+                SELECT notify_id, payload, target, channel, status, scheduled_at
+                FROM notify WHERE notify_id=$1;`
+        var dto notifyPostgresDTO
+
+        err := p.db.QueryRowContext(ctx, query, id).Scan(
+                &amp;dto.ID, &amp;dto.Payload, &amp;dto.Target, &amp;dto.Channel, &amp;dto.Status, &amp;dto.ScheduledAt,
+        )
+        if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                return nil, domain.ErrNotFound
+        }</span>
+        <span class="cov0" title="0">return toDomain(&amp;dto), err</span>
+}
+
+func (p *Postgres) UpdateStatus(
+        ctx context.Context,
+        id string,
+        status domain.Status,
+        scheduledAt *time.Time,
+        retryCount int,
+        lastErr *string,
+
+) error <span class="cov0" title="0">{
+        query := `
+                UPDATE notify
+                SET status       = $2, 
+                        scheduled_at = COALESCE($3, scheduled_at),
+                        retry_count  = $4,
+                        last_error   = $5, 
+                        updated_at   = NOW()
+                WHERE notify_id  = $1;`
+
+        res, err := p.db.ExecContext(ctx, query, id, status, scheduledAt, retryCount, lastErr)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to update status: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rows, _ := res.RowsAffected()
+        if rows == 0 </span><span class="cov0" title="0">{
+                return domain.ErrNotFound
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (p *Postgres) DeleteByID(ctx context.Context, id string) error <span class="cov0" title="0">{
+        query := `
+        DELETE FROM notify
+        WHERE notify_id = $1`
+
+        _, err := p.db.ExecContext(ctx, query, id)
+
+        return err
+}</span>
+
+// - обновление статусов у группы notify: StatusPending -&gt; StatusInProcess
+func (p *Postgres) LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration) ([]*domain.Notify, error) <span class="cov0" title="0">{
+        query := `
+                WITH selected AS (
+                        SELECT notify_id FROM notify
+                        WHERE (status = $1 AND scheduled_at &lt;= NOW())
+                                   OR (status = $2 AND COALESCE(updated_at, created_at) &lt;= NOW() - make_interval(secs =&gt; $5))
+                        ORDER BY scheduled_at ASC
+                        LIMIT $3
+                        FOR UPDATE SKIP LOCKED
+                )
+                UPDATE notify
+                SET status = $4, updated_at = NOW()
+                FROM selected
+                WHERE notify.notify_id = selected.notify_id
+                RETURNING   notify.notify_id, 
+                                        notify.payload, 
+                                        notify.target, 
+                                        notify.channel,
+                                        notify.status, 
+                                        notify.scheduled_at, 
+                                        notify.created_at, 
+                                        notify.updated_at,
+                                        notify.retry_count, 
+                                        notify.last_error;`
+
+        rows, err := p.db.QueryContext(
+                ctx,
+                query,
+                domain.StatusPending,
+                domain.StatusInProcess,
+                limit,
+                domain.StatusInProcess,
+                int(visibilityTimeout.Seconds()),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var results []*domain.Notify
+        for rows.Next() </span><span class="cov0" title="0">{
+                var dto notifyPostgresDTO
+                if err := rows.Scan(
+                        &amp;dto.ID,
+                        &amp;dto.Payload,
+                        &amp;dto.Target,
+                        &amp;dto.Channel,
+                        &amp;dto.Status,
+                        &amp;dto.ScheduledAt,
+                        &amp;dto.CreatedAt,
+                        &amp;dto.UpdatedAt,
+                        &amp;dto.RetryCount,
+                        &amp;dto.LastError,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">results = append(results, toDomain(&amp;dto))</span>
+        }
+        <span class="cov0" title="0">return results, nil</span>
+}
+
+func (p *Postgres) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) <span class="cov0" title="0">{
+        query := `
+                SELECT 
+                        notify_id, payload, target, channel, status, 
+                        scheduled_at, created_at, updated_at, retry_count, last_error
+                FROM notify
+                ORDER BY created_at DESC 
+                LIMIT $1
+                OFFSET $2;`
+
+        rows, err := p.db.QueryContext(ctx, query, limit, offset)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("postgres: failed to get list of notifies")
+        }</span>
+        <span class="cov0" title="0">if rows == nil </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var results []*domain.Notify
+        for rows.Next() </span><span class="cov0" title="0">{
+                var dto notifyPostgresDTO
+                if err := rows.Scan(
+                        &amp;dto.ID,
+                        &amp;dto.Payload,
+                        &amp;dto.Target,
+                        &amp;dto.Channel,
+                        &amp;dto.Status,
+                        &amp;dto.ScheduledAt,
+                        &amp;dto.CreatedAt,
+                        &amp;dto.UpdatedAt,
+                        &amp;dto.RetryCount,
+                        &amp;dto.LastError,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">results = append(results, toDomain(&amp;dto))</span>
+        }
+        <span class="cov0" title="0">return results, nil</span>
+}
+
+func (p *Postgres) Close() error <span class="cov0" title="0">{
+        return p.db.Master.Close()
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package rabbit
+
+import (
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+)
+
+type NotifyRabbitDTO struct {
+        ID          string        `json:"id"`
+        Payload     []byte        `json:"payload"`
+        Target      string        `json:"target"`
+        Channel     string        `json:"channel"`
+        Status      domain.Status `json:"status"`
+        ScheduledAt time.Time     `json:"scheduled_at"`
+        CreatedAt   time.Time     `json:"created_at"`
+        UpdatedAt   time.Time     `json:"updated_at"`
+        RetryCount  int           `json:"retry_count"`
+        LastError   *string       `json:"last_error"`
+}
+
+func toRabbitDTO(n *domain.Notify) *NotifyRabbitDTO <span class="cov0" title="0">{
+        return &amp;NotifyRabbitDTO{
+                ID:          n.ID,
+                Payload:     n.Payload,
+                Target:      n.Target,
+                Channel:     n.Channel,
+                Status:      n.Status,
+                ScheduledAt: n.ScheduledAt,
+                CreatedAt:   n.CreatedAt,
+                UpdatedAt:   n.UpdatedAt,
+                RetryCount:  n.RetryCount,
+                LastError:   n.LastError,
+        }
+}</span>
+
+func toDomain(dto NotifyRabbitDTO) *domain.Notify <span class="cov0" title="0">{
+        return &amp;domain.Notify{
+                ID:          dto.ID,
+                Payload:     dto.Payload,
+                Target:      dto.Target,
+                Channel:     dto.Channel,
+                Status:      dto.Status,
+                ScheduledAt: dto.ScheduledAt,
+                CreatedAt:   dto.CreatedAt,
+                UpdatedAt:   dto.UpdatedAt,
+                RetryCount:  dto.RetryCount,
+                LastError:   dto.LastError,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package rabbit
+
+import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/rabbit"
+        "github.com/rabbitmq/amqp091-go"
+
+        "github.com/wb-go/wbf/rabbitmq"
+)
+
+const (
+        exchangeName = "delayed_exchange"
+        queueName    = "notifications_queue"
+        routingKey   = "notification_key"
+        contentType  = "application/json"
+)
+
+type NotifyQueueAdapter struct {
+        client    *rabbitmq.RabbitClient
+        publisher *rabbitmq.Publisher
+}
+
+func NewRabbitQueueAdapter(cfg rabbit.Config) (domain.QueueProvider, error) <span class="cov0" title="0">{
+        client, err := rabbit.NewClient(cfg)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect rabbitmq: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">pub := rabbitmq.NewPublisher(client, exchangeName, contentType)
+
+        return &amp;NotifyQueueAdapter{
+                client:    client,
+                publisher: pub,
+        }, nil</span>
+}
+
+func (q *NotifyQueueAdapter) Init() error <span class="cov0" title="0">{
+        if err := q.client.DeclareQueue(
+                queueName,
+                exchangeName,
+                routingKey,
+                true,  // durable
+                false, // autoDelete
+                true,  // exchangeDurable
+                nil,
+        ); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to declare queue: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (q *NotifyQueueAdapter) Publish(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        delay := max(time.Until(n.ScheduledAt), 0)
+
+        dto := toRabbitDTO(n)
+        body, err := json.Marshal(dto)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("marshal notify: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return q.publisher.Publish(
+                ctx,
+                body,
+                routingKey,
+                rabbitmq.WithExpiration(delay),
+        )</span>
+}
+
+func (q *NotifyQueueAdapter) Consume(ctx context.Context, handler domain.MessageHandler) error <span class="cov0" title="0">{
+        wbfHandler := func(c context.Context, d amqp091.Delivery) error </span><span class="cov0" title="0">{
+                return handler(c, d.Body)
+        }</span>
+
+        <span class="cov0" title="0">cfg := rabbitmq.ConsumerConfig{
+                Queue:         queueName,
+                ConsumerTag:   "notifier-worker",
+                Workers:       5,
+                PrefetchCount: 10,
+        }
+
+        consumer := rabbitmq.NewConsumer(q.client, cfg, wbfHandler)
+        return consumer.Start(ctx)</span>
+}
+
+func (q *NotifyQueueAdapter) Close() error <span class="cov0" title="0">{
+        return q.client.Close()
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package redis
+
+import (
+        "encoding/json"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+)
+
+type NotifyRedisDTO struct {
+        ID          string        `json:"notify_id"`
+        Payload     []byte        `json:"payload"`
+        Target      string        `json:"target"`
+        Channel     string        `json:"channel"`
+        Status      domain.Status `json:"status"`
+        ScheduledAt time.Time     `json:"scheduled_at"`
+        CreatedAt   time.Time     `json:"created_at"`
+        UpdatedAt   time.Time     `json:"updated_at"`
+        RetryCount  int           `json:"retry_count"`
+        LastError   *string       `json:"last_error"`
+}
+
+func toRedisDTO(n *domain.Notify) ([]byte, error) <span class="cov0" title="0">{
+        redistDTO := &amp;NotifyRedisDTO{
+                ID:          n.ID,
+                Payload:     n.Payload,
+                Target:      n.Target,
+                Channel:     n.Channel,
+                Status:      n.Status,
+                ScheduledAt: n.ScheduledAt,
+                CreatedAt:   n.CreatedAt,
+                UpdatedAt:   n.UpdatedAt,
+                RetryCount:  n.RetryCount,
+                LastError:   n.LastError,
+        }
+
+        payload, err := json.Marshal(redistDTO)
+        return payload, err
+}</span>
+
+func toDomain(payload string) *domain.Notify <span class="cov0" title="0">{
+        var dto NotifyRedisDTO
+        json.Unmarshal([]byte(payload), &amp;dto)
+
+        return &amp;domain.Notify{
+                ID:          dto.ID,
+                Payload:     dto.Payload,
+                Target:      dto.Target,
+                Channel:     dto.Channel,
+                Status:      dto.Status,
+                ScheduledAt: dto.ScheduledAt,
+                CreatedAt:   dto.CreatedAt,
+                UpdatedAt:   dto.UpdatedAt,
+                RetryCount:  dto.RetryCount,
+                LastError:   dto.LastError,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package redis
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/redis"
+)
+
+const keyPrefix = "notify"
+
+type Redis struct {
+        redis      *redis.RDB
+        expiration time.Duration
+}
+
+func New(cfg redis.Config) domain.NotifyRedis <span class="cov0" title="0">{
+        redis := redis.New(cfg)
+        expiration := cfg.TTL
+        return &amp;Redis{
+                redis:      redis,
+                expiration: expiration,
+        }
+}</span>
+
+func (r *Redis) SetWithExpiration(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("%s:%s", keyPrefix, n.ID)
+        value, err := toRedisDTO(n)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to serialize notify into json")
+        }</span>
+        <span class="cov0" title="0">return r.redis.SetWithExpiration(ctx, key, value, r.expiration)</span>
+}
+
+func (r *Redis) Get(ctx context.Context, id string) (*domain.Notify, error) <span class="cov0" title="0">{
+        key := fmt.Sprintf("%s:%s", keyPrefix, id)
+        payload, err := r.redis.Get(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                if err == redis.RedisError </span><span class="cov0" title="0">{
+                        return &amp;domain.Notify{}, domain.ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return &amp;domain.Notify{}, fmt.Errorf("redis error: %w", err)</span>
+        }
+        <span class="cov0" title="0">n := toDomain(payload)
+        return n, nil</span>
+}
+
+func (r *Redis) Close() error <span class="cov0" title="0">{
+        return r.redis.Close()
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package sender
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+        "github.com/wneessen/go-mail"
+)
+
+type EmailConfig struct {
+        SMTPHost     string `mapstructure:"smtp_host"`
+        SMTPPort     int    `mapstructure:"smtp_port"`
+        SMTPUsername string `mapstructure:"smtp_username"`
+        SMTPPassword string `mapstructure:"smtp_password"`
+        FromEmail    string `mapstructure:"from_email"`
+        FromName     string `mapstructure:"from_name"`
+}
+
+type EmailSender struct {
+        config EmailConfig
+        log    log.Log
+}
+
+func NewEmailSender(config EmailConfig, log log.Log) domain.Sender <span class="cov10" title="2">{
+        return &amp;EmailSender{
+                config: config,
+                log:    log,
+        }
+}</span>
+
+func (s *EmailSender) Send(ctx context.Context, n *domain.Notify) error <span class="cov10" title="2">{
+        m := mail.NewMsg()
+
+        if err := m.From(fmt.Sprintf("%s &lt;%s&gt;", s.config.FromName, s.config.FromEmail)); err != nil </span><span class="cov1" title="1">{
+                return fmt.Errorf("failed to set from address: %w", err)
+        }</span>
+
+        <span class="cov1" title="1">if err := m.To(n.Target); err != nil </span><span class="cov1" title="1">{
+                return fmt.Errorf("failed to set to address: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">m.Subject("Delayed Notification")
+        m.SetBodyString(mail.TypeTextPlain, string(n.Payload))
+
+        client, err := mail.NewClient(
+                s.config.SMTPHost,
+                mail.WithPort(s.config.SMTPPort),
+                mail.WithSMTPAuth(mail.SMTPAuthPlain),
+                mail.WithUsername(s.config.SMTPUsername),
+                mail.WithPassword(s.config.SMTPPassword),
+                mail.WithTLSPolicy(mail.TLSMandatory),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create mail client: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">sendCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+        defer cancel()
+
+        if err := client.DialAndSendWithContext(sendCtx, m); err != nil </span><span class="cov0" title="0">{
+                s.log.Error().
+                        Err(err).
+                        Str("target", n.Target).
+                        Msg("failed to send email")
+                return fmt.Errorf("failed to send email: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">s.log.Info().
+                Str("target", n.Target).
+                Msg("email sent successfully")
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package sender
+
+import (
+        "bytes"
+        "context"
+        "encoding/json"
+        "fmt"
+        "net/http"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+)
+
+type TelegramConfig struct {
+        Token string
+}
+
+type TelegramSender struct {
+        token  string
+        log    log.Log
+        client *http.Client
+}
+
+func NewTelegramSender(token string, log log.Log) domain.Sender <span class="cov10" title="2">{
+        return &amp;TelegramSender{
+                token: token,
+                log:   log,
+                client: &amp;http.Client{
+                        Timeout: 10 * time.Second,
+                },
+        }
+}</span>
+
+type tgMessage struct {
+        ChatID string `json:"chat_id"`
+        Text   string `json:"text"`
+}
+
+func (s *TelegramSender) Send(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", s.token)
+
+        msg := tgMessage{
+                ChatID: n.Target,
+                Text:   string(n.Payload),
+        }
+
+        body, err := json.Marshal(msg)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal tg message: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">reqCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+        defer cancel()
+
+        req, err := http.NewRequestWithContext(reqCtx, http.MethodPost, url, bytes.NewBuffer(body))
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create request: %w", err)
+        }</span>
+        <span class="cov0" title="0">req.Header.Set("Content-Type", "application/json")
+
+        resp, err := s.client.Do(req)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("telegram api request failed: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer resp.Body.Close()
+
+        if resp.StatusCode != http.StatusOK </span><span class="cov0" title="0">{
+                return fmt.Errorf("telegram api returned non-200 status: %d", resp.StatusCode)
+        }</span>
+
+        <span class="cov0" title="0">s.log.Info().Str("target", n.Target).Msg("[TELEGRAM] Message sent successfully")
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package controller
+
+import (
+        "encoding/json"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+)
+
+type NotifyControllerDTO struct {
+        ID          string          `json:"notify_id,omitempty"`
+        Payload     json.RawMessage `json:"payload"`
+        Target      string          `json:"target"`
+        Channel     string          `json:"channel"`
+        Status      domain.Status   `json:"status"`
+        ScheduledAt time.Time       `json:"scheduled_at"`
+        CreatedAt   time.Time       `json:"created_at"`
+        UpdatedAt   time.Time       `json:"updated_at,omitempty"`
+        RetryCount  int             `json:"retry_count,omitempty"`
+        LastError   *string         `json:"last_error,omitempty"`
+}
+
+type CreateNotifyRequest struct {
+        ID          string          `json:"id"`
+        Payload     json.RawMessage `json:"payload"`
+        Target      string          `json:"target"`
+        Channel     string          `json:"channel"`
+        ScheduledAt time.Time       `json:"scheduled_at"`
+}
+
+type NotifyResponse struct {
+        ID          string        `json:"id"`
+        Status      domain.Status `json:"status"`
+        ScheduledAt time.Time     `json:"scheduled_at"`
+        CreatedAt   time.Time     `json:"created_at"`
+        RetryCount  int           `json:"retry_count"`
+        LastError   *string       `json:"last_error,omitempty"`
+}
+
+func toResponse(n *domain.Notify) NotifyResponse <span class="cov6" title="2">{
+        return NotifyResponse{
+                ID:          n.ID,
+                Status:      n.Status,
+                ScheduledAt: n.ScheduledAt,
+                CreatedAt:   n.CreatedAt,
+                RetryCount:  n.RetryCount,
+                LastError:   n.LastError,
+        }
+}</span>
+
+func toDomain(dto NotifyControllerDTO) *domain.Notify <span class="cov10" title="3">{
+        return &amp;domain.Notify{
+                ID:          dto.ID,
+                Payload:     dto.Payload,
+                Target:      dto.Target,
+                Channel:     dto.Channel,
+                Status:      dto.Status,
+                ScheduledAt: dto.ScheduledAt,
+                CreatedAt:   dto.CreatedAt,
+                UpdatedAt:   dto.UpdatedAt,
+                RetryCount:  dto.RetryCount,
+                LastError:   dto.LastError,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package controller
+
+import (
+        "errors"
+        "net/http"
+        "strconv"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+        "github.com/adexcell/delayed-notifier/pkg/router"
+        "github.com/adexcell/delayed-notifier/pkg/utils/uuid"
+)
+
+const (
+        Notify   = "/notify"     // POST, GET
+        NotifyID = "/notify/:id" // GET, DELETE
+)
+
+type notifyHandler struct {
+        usecase domain.NotifyUsecase
+        log     log.Log
+}
+
+func NewNotifyHandler(u domain.NotifyUsecase, l log.Log) router.Handler <span class="cov10" title="12">{
+        return &amp;notifyHandler{usecase: u, log: l}
+}</span>
+
+func (h *notifyHandler) Register(router *router.Router) <span class="cov10" title="12">{
+        router.POST(Notify, h.Create)
+        router.GET(NotifyID, h.Get)
+        router.DELETE(NotifyID, h.Delete)
+        router.GET(Notify, h.List)
+}</span>
+
+func (h *notifyHandler) Create(c *router.Context) <span class="cov6" title="4">{
+        var dto NotifyControllerDTO
+        if err := c.ShouldBindJSON(&amp;dto); err != nil </span><span class="cov1" title="1">{
+                c.JSON(http.StatusBadRequest, router.H{
+                        "error": "invalid json",
+                })
+                return
+        }</span>
+
+        <span class="cov4" title="3">dto.ID = uuid.New()
+
+        if dto.ScheduledAt.Before(time.Now()) </span><span class="cov1" title="1">{
+                h.log.Info().Time("scheduled_at", dto.ScheduledAt).Msg("wrong time in scheduled at")
+                c.JSON(http.StatusUnprocessableEntity, router.H{
+                        "error": "scheduled_at in the past",
+                })
+                return
+        }</span>
+
+        <span class="cov3" title="2">n := toDomain(dto)
+        id, err := h.usecase.Save(c, n)
+        if err != nil </span><span class="cov1" title="1">{
+                if errors.Is(err, domain.ErrNotifyAlreadyExists) </span><span class="cov1" title="1">{
+                        h.log.Error().Err(err).Msg("notify already exists")
+                        c.JSON(http.StatusConflict, router.H{
+                                "error": "notify already exists",
+                        })
+                        return
+                }</span>
+                <span class="cov0" title="0">h.log.Error().Err(err).Msg("internal server error")
+                c.JSON(http.StatusInternalServerError, router.H{
+                        "error": err.Error(),
+                })
+                return</span>
+        }
+
+        <span class="cov1" title="1">c.JSON(http.StatusCreated, router.H{"id": id})</span>
+}
+
+func (h *notifyHandler) Get(c *router.Context) <span class="cov4" title="3">{
+        id := c.Param("id")
+        if err := uuid.Parse(id); err != nil </span><span class="cov1" title="1">{
+                h.log.Error().Err(err).Msg("wrong ID format")
+                c.JSON(http.StatusBadRequest, router.H{
+                        "error": "cannot parse ID",
+                })
+                return
+        }</span>
+
+        <span class="cov3" title="2">notify, err := h.usecase.GetByID(c, id)
+        if err != nil </span><span class="cov1" title="1">{
+                if errors.Is(err, domain.ErrNotFound) </span><span class="cov1" title="1">{
+                        h.log.Error().Err(err).Msg("not found notify")
+                        c.JSON(http.StatusNotFound, router.H{
+                                "error": "not found notify",
+                        })
+                        return
+                }</span>
+                <span class="cov0" title="0">h.log.Error().Err(err).Msg("internal server error")
+                c.JSON(http.StatusInternalServerError, router.H{
+                        "error": err.Error(),
+                })
+                return</span>
+        }
+
+        <span class="cov1" title="1">res := toResponse(notify)
+
+        c.JSON(http.StatusOK, res)</span>
+}
+
+func (h *notifyHandler) Delete(c *router.Context) <span class="cov3" title="2">{
+        id := c.Param("id")
+        if err := uuid.Parse(id); err != nil </span><span class="cov0" title="0">{
+                h.log.Error().Err(err).Msg("wrong ID format")
+                c.JSON(http.StatusBadRequest, router.H{
+                        "error": "cannot parse ID",
+                })
+                return
+        }</span>
+
+        <span class="cov3" title="2">if err := h.usecase.Delete(c, id); err != nil </span><span class="cov1" title="1">{
+                if !errors.Is(err, domain.ErrNotFound) </span><span class="cov0" title="0">{
+                        h.log.Error().Err(err).Msg("internal server error")
+                        c.JSON(http.StatusInternalServerError, router.H{
+                                "error": err.Error(),
+                        })
+                        return
+                }</span>
+        }
+
+        <span class="cov3" title="2">c.JSON(http.StatusNoContent, router.H{
+                "success": "successfully deleted",
+        })</span>
+}
+
+func (h *notifyHandler) List(c *router.Context) <span class="cov4" title="3">{
+        limit, err := strconv.Atoi(c.Query("limit"))
+        if err != nil </span><span class="cov3" title="2">{
+                limit = 50
+        }</span>
+        <span class="cov4" title="3">offset, err := strconv.Atoi(c.Query("offset"))
+        if err != nil </span><span class="cov3" title="2">{
+                offset = 0
+        }</span>
+        <span class="cov4" title="3">notifies, err := h.usecase.List(c, limit, offset)
+        if err != nil </span><span class="cov1" title="1">{
+                h.log.Error().Err(err).Msg("internal server error")
+                c.JSON(http.StatusInternalServerError, router.H{
+                        "error": err.Error(),
+                })
+                return
+        }</span>
+
+        <span class="cov3" title="2">c.JSON(http.StatusOK, notifies)</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package domain
+
+import (
+        "context"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/pkg/utils/uuid"
+)
+
+type Status int
+
+const (
+        StatusPending   Status = iota // 0 - ожидает отправки
+        StatusInProcess               // 1 - передано в очередь на отправку
+        StatusSent                    // 2 - отправлено
+        StatusFailed                  // 3 - ошибка после всех попыток
+        StatusCanceled                // 4 - отменено пользователем
+)
+
+// Формат ID - uuid.UUID из пакета "github.com/google/uuid" приведенный в формат string
+type Notify struct {
+        ID          string
+        Payload     []byte
+        Target      string
+        Channel     string
+        Status      Status
+        ScheduledAt time.Time
+        CreatedAt   time.Time
+        UpdatedAt   time.Time
+        RetryCount  int
+        LastError   *string
+}
+
+func NewNotify() *Notify <span class="cov0" title="0">{
+        return &amp;Notify{
+                ID:         uuid.New(),
+                CreatedAt:  time.Now().UTC(),
+                UpdatedAt:  time.Now().UTC(),
+                RetryCount: 0,
+                LastError:  nil,
+        }
+}</span>
+
+type NotifyPostgres interface {
+        Create(ctx context.Context, n *Notify) error
+        GetNotifyByID(ctx context.Context, id string) (*Notify, error)
+        UpdateStatus(
+                ctx context.Context,
+                id string,
+                status Status,
+                scheduledAt *time.Time,
+                retryCount int,
+                lastErr *string,
+        ) error
+        DeleteByID(ctx context.Context, id string) error
+        LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration) ([]*Notify, error)
+        List(ctx context.Context, limit, offset int) ([]*Notify, error)
+        Close() error
+}
+
+type NotifyUsecase interface {
+        Save(ctx context.Context, n *Notify) (string, error)
+        GetByID(ctx context.Context, id string) (*Notify, error)
+        Delete(ctx context.Context, id string) error
+        List(ctx context.Context, limit, offset int) ([]*Notify, error)
+}
+
+type NotifyRedis interface {
+        SetWithExpiration(ctx context.Context, n *Notify) error
+        Get(ctx context.Context, id string) (*Notify, error)
+        Close() error
+}
+
+type Scheduler interface {
+        Run(ctx context.Context)
+}
+
+type MessageHandler func(ctx context.Context, payload []byte) error
+
+type QueueProvider interface {
+        Init() error
+        Publish(ctx context.Context, n *Notify) error
+        Consume(ctx context.Context, handler MessageHandler) error
+        Close() error
+}
+
+type Sender interface {
+        Send(ctx context.Context, n *Notify) error
+}
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: github.com/adexcell/delayed-notifier/internal/domain (interfaces: NotifyPostgres)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_postgres.go -package=mocks github.com/adexcell/delayed-notifier/internal/domain NotifyPostgres
+//
+
+// Package mocks is a generated GoMock package.
+package mocks
+
+import (
+        context "context"
+        reflect "reflect"
+        time "time"
+
+        domain "github.com/adexcell/delayed-notifier/internal/domain"
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockNotifyPostgres is a mock of NotifyPostgres interface.
+type MockNotifyPostgres struct {
+        ctrl     *gomock.Controller
+        recorder *MockNotifyPostgresMockRecorder
+        isgomock struct{}
+}
+
+// MockNotifyPostgresMockRecorder is the mock recorder for MockNotifyPostgres.
+type MockNotifyPostgresMockRecorder struct {
+        mock *MockNotifyPostgres
+}
+
+// NewMockNotifyPostgres creates a new mock instance.
+func NewMockNotifyPostgres(ctrl *gomock.Controller) *MockNotifyPostgres <span class="cov0" title="0">{
+        mock := &amp;MockNotifyPostgres{ctrl: ctrl}
+        mock.recorder = &amp;MockNotifyPostgresMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNotifyPostgres) EXPECT() *MockNotifyPostgresMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Close mocks base method.
+func (m *MockNotifyPostgres) Close() error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Close")
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Close indicates an expected call of Close.
+func (mr *MockNotifyPostgresMockRecorder) Close() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockNotifyPostgres)(nil).Close))
+}</span>
+
+// Create mocks base method.
+func (m *MockNotifyPostgres) Create(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Create", ctx, n)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Create indicates an expected call of Create.
+func (mr *MockNotifyPostgresMockRecorder) Create(ctx, n any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockNotifyPostgres)(nil).Create), ctx, n)
+}</span>
+
+// DeleteByID mocks base method.
+func (m *MockNotifyPostgres) DeleteByID(ctx context.Context, id string) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "DeleteByID", ctx, id)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// DeleteByID indicates an expected call of DeleteByID.
+func (mr *MockNotifyPostgresMockRecorder) DeleteByID(ctx, id any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockNotifyPostgres)(nil).DeleteByID), ctx, id)
+}</span>
+
+// GetNotifyByID mocks base method.
+func (m *MockNotifyPostgres) GetNotifyByID(ctx context.Context, id string) (*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetNotifyByID", ctx, id)
+        ret0, _ := ret[0].(*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetNotifyByID indicates an expected call of GetNotifyByID.
+func (mr *MockNotifyPostgresMockRecorder) GetNotifyByID(ctx, id any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotifyByID", reflect.TypeOf((*MockNotifyPostgres)(nil).GetNotifyByID), ctx, id)
+}</span>
+
+// List mocks base method.
+func (m *MockNotifyPostgres) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "List", ctx, limit, offset)
+        ret0, _ := ret[0].([]*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// List indicates an expected call of List.
+func (mr *MockNotifyPostgresMockRecorder) List(ctx, limit, offset any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockNotifyPostgres)(nil).List), ctx, limit, offset)
+}</span>
+
+// LockAndFetchReady mocks base method.
+func (m *MockNotifyPostgres) LockAndFetchReady(ctx context.Context, limit int, visibilityTimeout time.Duration) ([]*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "LockAndFetchReady", ctx, limit, visibilityTimeout)
+        ret0, _ := ret[0].([]*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// LockAndFetchReady indicates an expected call of LockAndFetchReady.
+func (mr *MockNotifyPostgresMockRecorder) LockAndFetchReady(ctx, limit, visibilityTimeout any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LockAndFetchReady", reflect.TypeOf((*MockNotifyPostgres)(nil).LockAndFetchReady), ctx, limit, visibilityTimeout)
+}</span>
+
+// UpdateStatus mocks base method.
+func (m *MockNotifyPostgres) UpdateStatus(ctx context.Context, id string, status domain.Status, scheduledAt *time.Time, retryCount int, lastErr *string) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "UpdateStatus", ctx, id, status, scheduledAt, retryCount, lastErr)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// UpdateStatus indicates an expected call of UpdateStatus.
+func (mr *MockNotifyPostgresMockRecorder) UpdateStatus(ctx, id, status, scheduledAt, retryCount, lastErr any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockNotifyPostgres)(nil).UpdateStatus), ctx, id, status, scheduledAt, retryCount, lastErr)
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: github.com/adexcell/delayed-notifier/internal/domain (interfaces: QueueProvider)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_queue.go -package=mocks github.com/adexcell/delayed-notifier/internal/domain QueueProvider
+//
+
+// Package mocks is a generated GoMock package.
+package mocks
+
+import (
+        context "context"
+        reflect "reflect"
+
+        domain "github.com/adexcell/delayed-notifier/internal/domain"
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockQueueProvider is a mock of QueueProvider interface.
+type MockQueueProvider struct {
+        ctrl     *gomock.Controller
+        recorder *MockQueueProviderMockRecorder
+        isgomock struct{}
+}
+
+// MockQueueProviderMockRecorder is the mock recorder for MockQueueProvider.
+type MockQueueProviderMockRecorder struct {
+        mock *MockQueueProvider
+}
+
+// NewMockQueueProvider creates a new mock instance.
+func NewMockQueueProvider(ctrl *gomock.Controller) *MockQueueProvider <span class="cov0" title="0">{
+        mock := &amp;MockQueueProvider{ctrl: ctrl}
+        mock.recorder = &amp;MockQueueProviderMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockQueueProvider) EXPECT() *MockQueueProviderMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Close mocks base method.
+func (m *MockQueueProvider) Close() error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Close")
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Close indicates an expected call of Close.
+func (mr *MockQueueProviderMockRecorder) Close() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockQueueProvider)(nil).Close))
+}</span>
+
+// Consume mocks base method.
+func (m *MockQueueProvider) Consume(ctx context.Context, handler domain.MessageHandler) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Consume", ctx, handler)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Consume indicates an expected call of Consume.
+func (mr *MockQueueProviderMockRecorder) Consume(ctx, handler any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Consume", reflect.TypeOf((*MockQueueProvider)(nil).Consume), ctx, handler)
+}</span>
+
+// Init mocks base method.
+func (m *MockQueueProvider) Init() error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Init")
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Init indicates an expected call of Init.
+func (mr *MockQueueProviderMockRecorder) Init() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockQueueProvider)(nil).Init))
+}</span>
+
+// Publish mocks base method.
+func (m *MockQueueProvider) Publish(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Publish", ctx, n)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Publish indicates an expected call of Publish.
+func (mr *MockQueueProviderMockRecorder) Publish(ctx, n any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockQueueProvider)(nil).Publish), ctx, n)
+}</span>
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: github.com/adexcell/delayed-notifier/internal/domain (interfaces: NotifyRedis)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_redis.go -package=mocks github.com/adexcell/delayed-notifier/internal/domain NotifyRedis
+//
+
+// Package mocks is a generated GoMock package.
+package mocks
+
+import (
+        context "context"
+        reflect "reflect"
+
+        domain "github.com/adexcell/delayed-notifier/internal/domain"
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockNotifyRedis is a mock of NotifyRedis interface.
+type MockNotifyRedis struct {
+        ctrl     *gomock.Controller
+        recorder *MockNotifyRedisMockRecorder
+        isgomock struct{}
+}
+
+// MockNotifyRedisMockRecorder is the mock recorder for MockNotifyRedis.
+type MockNotifyRedisMockRecorder struct {
+        mock *MockNotifyRedis
+}
+
+// NewMockNotifyRedis creates a new mock instance.
+func NewMockNotifyRedis(ctrl *gomock.Controller) *MockNotifyRedis <span class="cov0" title="0">{
+        mock := &amp;MockNotifyRedis{ctrl: ctrl}
+        mock.recorder = &amp;MockNotifyRedisMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNotifyRedis) EXPECT() *MockNotifyRedisMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Close mocks base method.
+func (m *MockNotifyRedis) Close() error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Close")
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Close indicates an expected call of Close.
+func (mr *MockNotifyRedisMockRecorder) Close() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockNotifyRedis)(nil).Close))
+}</span>
+
+// Get mocks base method.
+func (m *MockNotifyRedis) Get(ctx context.Context, id string) (*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Get", ctx, id)
+        ret0, _ := ret[0].(*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// Get indicates an expected call of Get.
+func (mr *MockNotifyRedisMockRecorder) Get(ctx, id any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockNotifyRedis)(nil).Get), ctx, id)
+}</span>
+
+// SetWithExpiration mocks base method.
+func (m *MockNotifyRedis) SetWithExpiration(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "SetWithExpiration", ctx, n)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// SetWithExpiration indicates an expected call of SetWithExpiration.
+func (mr *MockNotifyRedisMockRecorder) SetWithExpiration(ctx, n any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetWithExpiration", reflect.TypeOf((*MockNotifyRedis)(nil).SetWithExpiration), ctx, n)
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: github.com/adexcell/delayed-notifier/internal/domain (interfaces: Sender)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_sender.go -package=mocks github.com/adexcell/delayed-notifier/internal/domain Sender
+//
+
+// Package mocks is a generated GoMock package.
+package mocks
+
+import (
+        context "context"
+        reflect "reflect"
+
+        domain "github.com/adexcell/delayed-notifier/internal/domain"
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockSender is a mock of Sender interface.
+type MockSender struct {
+        ctrl     *gomock.Controller
+        recorder *MockSenderMockRecorder
+        isgomock struct{}
+}
+
+// MockSenderMockRecorder is the mock recorder for MockSender.
+type MockSenderMockRecorder struct {
+        mock *MockSender
+}
+
+// NewMockSender creates a new mock instance.
+func NewMockSender(ctrl *gomock.Controller) *MockSender <span class="cov0" title="0">{
+        mock := &amp;MockSender{ctrl: ctrl}
+        mock.recorder = &amp;MockSenderMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSender) EXPECT() *MockSenderMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Send mocks base method.
+func (m *MockSender) Send(ctx context.Context, n *domain.Notify) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Send", ctx, n)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Send indicates an expected call of Send.
+func (mr *MockSenderMockRecorder) Send(ctx, n any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockSender)(nil).Send), ctx, n)
+}</span>
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: github.com/adexcell/delayed-notifier/internal/domain (interfaces: NotifyUsecase)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_usecase.go -package=mocks github.com/adexcell/delayed-notifier/internal/domain NotifyUsecase
+//
+
+// Package mocks is a generated GoMock package.
+package mocks
+
+import (
+        context "context"
+        reflect "reflect"
+
+        domain "github.com/adexcell/delayed-notifier/internal/domain"
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockNotifyUsecase is a mock of NotifyUsecase interface.
+type MockNotifyUsecase struct {
+        ctrl     *gomock.Controller
+        recorder *MockNotifyUsecaseMockRecorder
+        isgomock struct{}
+}
+
+// MockNotifyUsecaseMockRecorder is the mock recorder for MockNotifyUsecase.
+type MockNotifyUsecaseMockRecorder struct {
+        mock *MockNotifyUsecase
+}
+
+// NewMockNotifyUsecase creates a new mock instance.
+func NewMockNotifyUsecase(ctrl *gomock.Controller) *MockNotifyUsecase <span class="cov0" title="0">{
+        mock := &amp;MockNotifyUsecase{ctrl: ctrl}
+        mock.recorder = &amp;MockNotifyUsecaseMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNotifyUsecase) EXPECT() *MockNotifyUsecaseMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Delete mocks base method.
+func (m *MockNotifyUsecase) Delete(ctx context.Context, id string) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Delete", ctx, id)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Delete indicates an expected call of Delete.
+func (mr *MockNotifyUsecaseMockRecorder) Delete(ctx, id any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockNotifyUsecase)(nil).Delete), ctx, id)
+}</span>
+
+// GetByID mocks base method.
+func (m *MockNotifyUsecase) GetByID(ctx context.Context, id string) (*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetByID", ctx, id)
+        ret0, _ := ret[0].(*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetByID indicates an expected call of GetByID.
+func (mr *MockNotifyUsecaseMockRecorder) GetByID(ctx, id any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockNotifyUsecase)(nil).GetByID), ctx, id)
+}</span>
+
+// List mocks base method.
+func (m *MockNotifyUsecase) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "List", ctx, limit, offset)
+        ret0, _ := ret[0].([]*domain.Notify)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// List indicates an expected call of List.
+func (mr *MockNotifyUsecaseMockRecorder) List(ctx, limit, offset any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockNotifyUsecase)(nil).List), ctx, limit, offset)
+}</span>
+
+// Save mocks base method.
+func (m *MockNotifyUsecase) Save(ctx context.Context, n *domain.Notify) (string, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Save", ctx, n)
+        ret0, _ := ret[0].(string)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// Save indicates an expected call of Save.
+func (mr *MockNotifyUsecaseMockRecorder) Save(ctx, n any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockNotifyUsecase)(nil).Save), ctx, n)
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package usecase
+
+import (
+        "context"
+        "errors"
+        "fmt"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+)
+
+type NotifyUsecase struct {
+        log      log.Log
+        postgres domain.NotifyPostgres
+        redis    domain.NotifyRedis
+        rabbit   domain.QueueProvider
+}
+
+func New(
+        p domain.NotifyPostgres,
+        redis domain.NotifyRedis,
+        rabbit domain.QueueProvider,
+        l log.Log,
+) domain.NotifyUsecase <span class="cov10" title="7">{
+        return &amp;NotifyUsecase{
+                log:      l,
+                postgres: p,
+                redis:    redis,
+                rabbit:   rabbit,
+        }
+}</span>
+
+func (u *NotifyUsecase) Save(ctx context.Context, n *domain.Notify) (string, error) <span class="cov4" title="2">{
+        _, err := u.postgres.GetNotifyByID(ctx, n.ID)
+        if err == nil </span><span class="cov1" title="1">{
+                return n.ID, domain.ErrNotifyAlreadyExists
+        }</span>
+
+        <span class="cov1" title="1">if err := u.postgres.Create(ctx, n); err != nil </span><span class="cov0" title="0">{
+                return n.ID, fmt.Errorf("failed to create save notify in db: %w", err)
+        }</span>
+
+        <span class="cov1" title="1">return n.ID, nil</span>
+}
+
+func (u *NotifyUsecase) GetByID(ctx context.Context, id string) (*domain.Notify, error) <span class="cov6" title="3">{
+        n, err := u.redis.Get(ctx, id)
+        if err == nil </span><span class="cov1" title="1">{
+                return n, nil
+        }</span>
+
+        <span class="cov4" title="2">n, err = u.postgres.GetNotifyByID(ctx, id)
+        if err != nil </span><span class="cov1" title="1">{
+                if errors.Is(err, domain.ErrNotFound) </span><span class="cov1" title="1">{
+                        return nil, domain.ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, fmt.Errorf("failed to get from db: %w", err)</span>
+        }
+
+        <span class="cov1" title="1">if err := u.redis.SetWithExpiration(ctx, n); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to set to redis: %w", err)
+        }</span>
+
+        <span class="cov1" title="1">return n, nil</span>
+}
+
+func (u *NotifyUsecase) List(ctx context.Context, limit, offset int) ([]*domain.Notify, error) <span class="cov1" title="1">{
+        return u.postgres.List(ctx, limit, offset)
+}</span>
+
+func (u *NotifyUsecase) Delete(ctx context.Context, id string) error <span class="cov1" title="1">{
+        return u.postgres.DeleteByID(ctx, id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package usecase
+
+import (
+        "context"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/config"
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+)
+
+type Scheduler struct {
+        postgres          domain.NotifyPostgres
+        rabbit            domain.QueueProvider
+        interval          time.Duration
+        batchSize         int
+        maxRetries        int
+        visibilityTimeout time.Duration
+        log               log.Log
+}
+
+func NewScheduler(
+        postgres domain.NotifyPostgres,
+        rabbit domain.QueueProvider,
+        cfg config.NotifierConfig,
+        log log.Log,
+) domain.Scheduler <span class="cov8" title="3">{
+        return &amp;Scheduler{
+                postgres:          postgres,
+                rabbit:            rabbit,
+                interval:          cfg.Interval,
+                batchSize:         cfg.BatchSize,
+                maxRetries:        cfg.MaxRetries,
+                visibilityTimeout: cfg.VisibilityTimeout,
+                log:               log,
+        }
+}</span>
+
+func (s *Scheduler) Run(ctx context.Context) <span class="cov0" title="0">{
+        ticker := time.NewTicker(s.interval)
+        defer ticker.Stop()
+
+        s.log.Info().Msg("Scheduler started")
+
+        for </span><span class="cov0" title="0">{
+                select </span>{
+                case &lt;-ctx.Done():<span class="cov0" title="0">
+                        s.log.Info().Msg("Scheduler stopped by context")
+                        return</span>
+                case &lt;-ticker.C:<span class="cov0" title="0">
+                        s.process(ctx)</span>
+                }
+        }
+}
+
+func (s *Scheduler) process(ctx context.Context) <span class="cov8" title="3">{
+        // забираем пачку уведомлений из БД (StatusPending -&gt; StatusInProcess)
+        notifies, err := s.postgres.LockAndFetchReady(ctx, s.batchSize, s.visibilityTimeout)
+        if err != nil </span><span class="cov0" title="0">{
+                s.log.Error().Err(err).Msg("Scheduler: failed to fetch notifies from db")
+        }</span>
+
+        <span class="cov8" title="3">if len(notifies) == 0 </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="3">for _, n := range notifies </span><span class="cov10" title="4">{
+                if err := s.rabbit.Publish(ctx, n); err != nil </span><span class="cov5" title="2">{
+                        s.log.Error().Err(err).Msg("Scheduler: failed to publish notify")
+                        errStr := err.Error()
+
+                        var status domain.Status
+
+                        if n.RetryCount &lt; s.maxRetries </span><span class="cov1" title="1">{
+                                n.RetryCount += 1
+                                status = domain.StatusPending
+                        }</span> else<span class="cov1" title="1"> {
+                                n.RetryCount = 0
+                                status = domain.StatusFailed
+                        }</span>
+
+                        <span class="cov5" title="2">if err := s.postgres.UpdateStatus(ctx, n.ID, status, &amp;n.ScheduledAt, n.RetryCount, &amp;errStr); err != nil </span><span class="cov0" title="0">{
+                                s.log.Error().Err(err).Msg("Scheduler: failed to update status in db")
+                        }</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package worker
+
+import (
+        "time"
+
+        "github.com/adexcell/delayed-notifier/internal/domain"
+)
+
+type NotifyWorkerDTO struct {
+        ID          string        `json:"id"`
+        Payload     []byte        `json:"payload"`
+        Target      string        `json:"target"`
+        Channel     string        `json:"channel"`
+        Status      domain.Status `json:"status"`
+        ScheduledAt time.Time     `json:"scheduled_at"`
+        CreatedAt   time.Time     `json:"created_at"`
+        UpdatedAt   time.Time     `json:"updated_at"`
+        RetryCount  int           `json:"retry_count"`
+        LastError   *string       `json:"last_error"`
+}
+
+func toWorkerDTO(n *domain.Notify) *NotifyWorkerDTO <span class="cov0" title="0">{
+        return &amp;NotifyWorkerDTO{
+                ID:          n.ID,
+                Payload:     n.Payload,
+                Target:      n.Target,
+                Channel:     n.Channel,
+                Status:      n.Status,
+                ScheduledAt: n.ScheduledAt,
+                CreatedAt:   n.CreatedAt,
+                UpdatedAt:   n.UpdatedAt,
+                RetryCount:  n.RetryCount,
+                LastError:   n.LastError,
+        }
+}</span>
+
+func toDomain(dto *NotifyWorkerDTO) *domain.Notify <span class="cov10" title="3">{
+        return &amp;domain.Notify{
+                ID:          dto.ID,
+                Payload:     dto.Payload,
+                Target:      dto.Target,
+                Channel:     dto.Channel,
+                Status:      dto.Status,
+                ScheduledAt: dto.ScheduledAt,
+                CreatedAt:   dto.CreatedAt,
+                UpdatedAt:   dto.UpdatedAt,
+                RetryCount:  dto.RetryCount,
+                LastError:   dto.LastError,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package worker
+
+import (
+        "context"
+        "encoding/json"
+        "errors"
+        "fmt"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/config"
+        "github.com/adexcell/delayed-notifier/internal/domain"
+        "github.com/adexcell/delayed-notifier/pkg/log"
+)
+
+type NotifyConsumer struct {
+        postgres   domain.NotifyPostgres
+        rabbit     domain.QueueProvider
+        redis      domain.NotifyRedis
+        senders    map[string]domain.Sender
+        maxRetries int
+        log        log.Log
+}
+
+func NewNotifyConsumer(
+        cfg config.NotifierConfig,
+        postgres domain.NotifyPostgres,
+        rabbit domain.QueueProvider,
+        redis domain.NotifyRedis,
+        senders map[string]domain.Sender,
+        log log.Log,
+) *NotifyConsumer <span class="cov10" title="7">{
+        return &amp;NotifyConsumer{
+                postgres:   postgres,
+                rabbit:     rabbit,
+                redis:      redis,
+                senders:    senders,
+                maxRetries: cfg.MaxRetries,
+                log:        log,
+        }
+}</span>
+
+func (c *NotifyConsumer) Handle(ctx context.Context, payload []byte) error <span class="cov9" title="6">{
+        var dto NotifyWorkerDTO
+        if err := json.Unmarshal(payload, &amp;dto); err != nil </span><span class="cov1" title="1">{
+                c.log.Error().Err(err).Msg("Consumer: failed to unmarshal")
+                return nil
+        }</span>
+
+        <span class="cov8" title="5">currentNotify, err := c.redis.Get(ctx, dto.ID)
+        if err != nil </span><span class="cov4" title="2">{
+                currentNotify, err = c.postgres.GetNotifyByID(ctx, dto.ID)
+                if err != nil </span><span class="cov1" title="1">{
+                        if errors.Is(err, domain.ErrNotFound) </span><span class="cov1" title="1">{
+                                c.log.Error().Err(err).Any("id", dto.ID).Msgf("Consumer: not found notify %s: %v", dto.ID, err)
+                                return nil
+                        }</span>
+                        <span class="cov0" title="0">c.log.Error().Err(err).Any("id", dto.ID).Msgf("Consumer: failed to fetch current status for %s: %v", dto.ID, err)
+                        return nil</span>
+                }
+
+                <span class="cov1" title="1">if currentNotify == nil </span><span class="cov0" title="0">{
+                        c.log.Warn().Any("id", dto.ID).Msgf("Consumer: notify %s not found in DB, skipping", dto.ID)
+                        return nil
+                }</span>
+        }
+
+        <span class="cov7" title="4">if currentNotify.Status == domain.StatusSent || currentNotify.Status == domain.StatusCanceled </span><span class="cov1" title="1">{
+                c.log.Info().
+                        Any("id", dto.ID).
+                        Msgf("Consumer: notify %s already in final status (%v), skipping", dto.ID, currentNotify.Status)
+                return nil
+        }</span>
+
+        <span class="cov6" title="3">c.log.Info().
+                Any("id", dto.ID).
+                Str("Target", dto.Target).
+                Msgf("Consumer: processing notify %s to %s", dto.ID, dto.Target)
+
+        if err := c.Send(ctx, dto); err != nil </span><span class="cov4" title="2">{
+                c.log.Error().
+                        Err(err).
+                        Any("id", dto.ID).
+                        Msgf("Consumer: send failed")
+                errStr := err.Error()
+                dto.RetryCount++
+                if dto.RetryCount &lt; c.maxRetries </span><span class="cov1" title="1">{
+                        dto.ScheduledAt = time.Now().Add(time.Duration(dto.RetryCount * dto.RetryCount * int(time.Minute)))
+                        _ = c.postgres.UpdateStatus(ctx, dto.ID, domain.StatusPending, &amp;dto.ScheduledAt, dto.RetryCount, &amp;errStr)
+                        return nil
+                }</span>
+
+                <span class="cov1" title="1">_ = c.postgres.UpdateStatus(ctx, dto.ID, domain.StatusFailed, nil, dto.RetryCount, &amp;errStr)
+
+                return nil</span>
+        }
+
+        <span class="cov1" title="1">if err := c.postgres.UpdateStatus(ctx, dto.ID, domain.StatusSent, nil, dto.RetryCount, nil); err != nil </span><span class="cov0" title="0">{
+                c.log.Error().Err(err).Any("id", dto.ID).Msg("Consumer: failed to update status to Sent ")
+                return err
+        }</span>
+
+        <span class="cov1" title="1">c.log.Info().Any("id", dto.ID).Str("Target", dto.Target).Msg("Consumer: notify sent successfully")
+        return nil</span>
+}
+
+func (c *NotifyConsumer) Send(ctx context.Context, dto NotifyWorkerDTO) error <span class="cov7" title="4">{
+        sender, ok := c.senders[dto.Channel]
+        if !ok </span><span class="cov1" title="1">{
+                return fmt.Errorf("unsupported channel: %s", dto.Channel)
+        }</span>
+        <span class="cov6" title="3">return sender.Send(ctx, toDomain(&amp;dto))</span>
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">// Package httpserver пакет для настройки и конфигурирования сервера.
+package httpserver
+
+import (
+        "context"
+        "errors"
+        "net/http"
+        "time"
+
+        "github.com/adexcell/delayed-notifier/pkg/log"
+)
+
+type Config struct {
+        Addr            string        `mapstructure:"addr" validate:"required"`
+        ReadTimeout     time.Duration `mapstructure:"read_timeout" validate:"required,min=1s"`
+        WriteTimeout    time.Duration `mapstructure:"write_timeout" validate:"required,min=1s"`
+        IdleTimeout     time.Duration `mapstructure:"idle_timeout" validate:"required,min=1s"`
+        ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout" validate:"required,min=1s"`
+        MaxHeaderBytes  int           `mapstructure:"max_header_bytes" validate:"required,min=1"`
+}
+
+type Server struct {
+        server          *http.Server
+        log             log.Log
+        shutdownTimeout time.Duration
+        shutdownCh      chan struct{}
+}
+
+func New(handler http.Handler, c Config, l log.Log) *Server <span class="cov0" title="0">{
+        return &amp;Server{
+                server: &amp;http.Server{
+                        Addr:           c.Addr,
+                        Handler:        handler,
+                        ReadTimeout:    c.ReadTimeout,
+                        WriteTimeout:   c.WriteTimeout,
+                        IdleTimeout:    c.IdleTimeout,
+                        MaxHeaderBytes: c.MaxHeaderBytes,
+                },
+                log:             l,
+                shutdownTimeout: c.ShutdownTimeout,
+                shutdownCh:      make(chan struct{}),
+        }
+}</span>
+
+func (s *Server) Start() error <span class="cov0" title="0">{
+        go func() </span><span class="cov0" title="0">{
+                s.log.Info().Str("addr", s.server.Addr).Msg("Server starting")
+                err := s.server.ListenAndServe()
+
+                if errors.Is(err, http.ErrServerClosed) </span><span class="cov0" title="0">{
+                        s.log.Info().Msg("Server stopped gracefully")
+                }</span> else<span class="cov0" title="0"> if err != nil </span><span class="cov0" title="0">{
+                        s.log.Error().Err(err).Msg("server failed")
+                }</span>
+                <span class="cov0" title="0">close(s.shutdownCh)</span>
+        }()
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (s *Server) Close() error <span class="cov0" title="0">{
+        ctx, cancel := context.WithTimeout(context.Background(), s.shutdownTimeout)
+        defer cancel()
+
+        s.log.Info().Msg("Server shutting down")
+        if err := s.server.Shutdown(ctx); err != nil </span><span class="cov0" title="0">{
+                s.log.Error().Err(err).Msg("Server shutdown error")
+                return err
+        }</span>
+        <span class="cov0" title="0">s.log.Info().Msg("Server stopped")
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">// Package log является оберткой над вспомогательным пакетом wbf/zlog.
+package log
+
+import "github.com/wb-go/wbf/zlog"
+
+type Log = zlog.Zerolog
+
+func New() Log <span class="cov0" title="0">{
+        zlog.InitConsole()
+        return zlog.Logger
+}</span>
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package postgres
+
+import (
+        "errors"
+
+        "github.com/lib/pq"
+)
+
+func PostgresErr(err error) error <span class="cov0" title="0">{
+        if pgErr, ok := err.(*pq.Error); ok &amp;&amp; pgErr.Code == "23505" </span><span class="cov0" title="0">{
+                return errors.New("this alias is already taken")
+        }</span>
+        <span class="cov0" title="0">return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">// Package postgres является оберткой над вспомогательным пакетом wbf/dbpg.
+package postgres
+
+import (
+        "fmt"
+        "time"
+
+        "github.com/wb-go/wbf/dbpg"
+)
+
+type DB = dbpg.DB
+
+type Config struct {
+        MasterDSN       string        `mapstructure:"master_dsn"`
+        SlavesDSN       []string      `mapstructure:"slaves_dsn"`
+        MaxOpenConns    int           `mapstructure:"max_open_conns"`
+        MaxIdleConns    int           `mapstructure:"max_idle_conns"`
+        ConnMaxLifetime time.Duration `mapstructure:"conn_max_life_time"`
+}
+
+func New(cfg Config) (*DB, error) <span class="cov0" title="0">{
+        dbOpts := &amp;dbpg.Options{
+                MaxOpenConns:    cfg.MaxOpenConns,
+                MaxIdleConns:    cfg.MaxIdleConns,
+                ConnMaxLifetime: cfg.ConnMaxLifetime,
+        }
+
+        db, err := dbpg.New(cfg.MasterDSN, cfg.SlavesDSN, dbOpts)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("DB connection failed: %w", err)
+        }</span>
+        <span class="cov0" title="0">if err := db.Master.Ping(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("DB Ping failed - check your DSN and SSL mode: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return db, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">package rabbit
+
+import (
+        "time"
+
+        "github.com/wb-go/wbf/rabbitmq"
+        "github.com/wb-go/wbf/retry"
+)
+
+type Config struct {
+        URL            string         `mapstructure:"url"`
+        ConnectionName string         `mapstructure:"connection_name"`
+        ConnectTimeout time.Duration  `mapstructure:"connect_timeout"`
+        Heartbeat      time.Duration  `mapstructure:"heartbeat"`
+        ReconnectStrat retry.Strategy `mapstructure:"reconnect_strat"`
+        ProducingStrat retry.Strategy `mapstructure:"producing_strat"`
+        ConsumingStrat retry.Strategy `mapstructure:"consuming_strat"`
+}
+
+func NewClient(cfg Config) (*rabbitmq.RabbitClient, error) <span class="cov0" title="0">{
+        clientCfg := rabbitmq.ClientConfig{
+                URL:            cfg.URL,
+                ConnectionName: cfg.ConnectionName,
+                ConnectTimeout: cfg.ConnectTimeout,
+                Heartbeat:      cfg.Heartbeat,
+                ReconnectStrat: cfg.ReconnectStrat,
+                ProducingStrat: cfg.ProducingStrat,
+                ConsumingStrat: cfg.ConsumingStrat,
+        }
+
+        return rabbitmq.NewClient(clientCfg)
+}</span>
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">// Package redis является оберткой над вспомогательным пакетом wbf/redis.
+package redis
+
+import (
+        "time"
+
+        originalRedis "github.com/go-redis/redis/v8"
+        "github.com/wb-go/wbf/redis"
+)
+
+const RedisError = originalRedis.Nil
+
+type RDB = redis.Client
+
+type Config struct {
+        Addr     string        `mapstructure:"addr"`
+        Password string        `mapstructure:"password"`
+        DB       int           `mapstructure:"db"`
+        TTL      time.Duration `mapstructure:"ttl"`
+}
+
+func New(cfg Config) *RDB <span class="cov0" title="0">{
+        return redis.New(cfg.Addr, cfg.Password, cfg.DB)
+}</span>
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">// Package router является оберткой над вспомогательным пакетом wbf/ginext.
+package router
+
+import (
+        "github.com/wb-go/wbf/ginext"
+)
+
+type Router = ginext.Engine
+type Context = ginext.Context
+type H = ginext.H
+
+type Handler interface {
+        Register(router *Router)
+}
+
+type Config struct {
+        GinMode string `mapstructure:"gin_mode"`
+}
+
+func New(cfg Config) *Router <span class="cov0" title="0">{
+        return ginext.New(cfg.GinMode)
+}</span>
+</pre>
+		
+		<pre class="file" id="file30" style="display: none">// Package uuid является оберткой над вспомогательным пакетом wbf/helpers.
+package uuid
+
+import (
+        "github.com/wb-go/wbf/helpers"
+)
+
+// New создает новый случайный UUID.
+func New() string <span class="cov0" title="0">{
+        return helpers.CreateUUID()
+}</span>
+
+// Parse проверяет, является ли строка валидным UUID.
+func Parse(s string) error <span class="cov0" title="0">{
+        return helpers.ParseUUID(s)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

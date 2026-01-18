@@ -1,7 +1,6 @@
 package rabbit
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/domain"
@@ -20,8 +19,8 @@ type NotifyRabbitDTO struct {
 	LastError   *string       `json:"last_error"`
 }
 
-func toRabbitDTO(n *domain.Notify) ([]byte, error) {
-	rabbitDTO :=  &NotifyRabbitDTO{
+func toRabbitDTO(n *domain.Notify) *NotifyRabbitDTO {
+	return &NotifyRabbitDTO{
 		ID:          n.ID,
 		Payload:     n.Payload,
 		Target:      n.Target,
@@ -33,15 +32,9 @@ func toRabbitDTO(n *domain.Notify) ([]byte, error) {
 		RetryCount:  n.RetryCount,
 		LastError:   n.LastError,
 	}
-
-	payload, err := json.Marshal(rabbitDTO)
-	return payload, err
 }
 
-func toDomain(payload string) *domain.Notify {
-	var dto NotifyRabbitDTO
-	json.Unmarshal([]byte(payload), &dto)
-
+func toDomain(dto NotifyRabbitDTO) *domain.Notify {
 	return &domain.Notify{
 		ID:          dto.ID,
 		Payload:     dto.Payload,
