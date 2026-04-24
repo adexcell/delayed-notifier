@@ -1,6 +1,2 @@
-.env
-pg_data/
-redis_data/
-rabbitmq_data/
-LEARNING_GUIDE.md
-*.txt
+**/.env
+

@@ -1,37 +1,49 @@
-// Package postgres является оберткой над вспомогательным пакетом wbf/dbpg.
 package postgres
 
 import (
+	"context"
 	"fmt"
-	"time"
 
-	"github.com/wb-go/wbf/dbpg"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog/log"
 )
 
-type DB = dbpg.DB
-
 type Config struct {
-	MasterDSN       string        `mapstructure:"master_dsn"`
-	SlavesDSN       []string      `mapstructure:"slaves_dsn"`
-	MaxOpenConns    int           `mapstructure:"max_open_conns"`
-	MaxIdleConns    int           `mapstructure:"max_idle_conns"`
-	ConnMaxLifetime time.Duration `mapstructure:"conn_max_life_time"`
+	User     string `envconfig:"POSTGRES_USER"     required:"true"`
+	Password string `envconfig:"POSTGRES_PASSWORD" required:"true"`
+	Port     string `envconfig:"POSTGRES_PORT"     required:"true"`
+	Host     string `envconfig:"POSTGRES_HOST"     required:"true"`
+	DBName   string `envconfig:"POSTGRES_DB_NAME"  required:"true"`
 }
 
-func New(cfg Config) (*DB, error) {
-	dbOpts := &dbpg.Options{
-		MaxOpenConns:    cfg.MaxOpenConns,
-		MaxIdleConns:    cfg.MaxIdleConns,
-		ConnMaxLifetime: cfg.ConnMaxLifetime,
-	}
+type Pool struct {
+	*pgxpool.Pool
+}
 
-	db, err := dbpg.New(cfg.MasterDSN, cfg.SlavesDSN, dbOpts)
+func New(ctx context.Context, c Config) (*Pool, error) {
+	dsn := fmt.Sprintf("user=%s password=%s port=%s host=%s dbname=%s",
+		c.User,
+		c.Password,
+		c.Port,
+		c.Host,
+		c.DBName,
+	)
+
+	cfg, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, fmt.Errorf("DB connection failed: %w", err)
-	}
-	if err := db.Master.Ping(); err != nil {
-		return nil, fmt.Errorf("DB Ping failed - check your DSN and SSL mode: %w", err)
+		return nil, fmt.Errorf("pgxpool.ParseConfig: %w", err)
 	}
 
-	return db, nil
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("pgxpool.NewWithConfig: %w", err)
+	}
+
+	return &Pool{Pool: pool}, nil
+}
+
+func (p *Pool) Close() {
+	p.Pool.Close()
+
+	log.Info().Msg("Postgres closed")
 }

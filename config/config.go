@@ -1,56 +1,43 @@
 package config
 
 import (
-	"time"
+	"fmt"
 
-	"github.com/adexcell/delayed-notifier/internal/adapter/sender"
-	"github.com/adexcell/delayed-notifier/pkg/httpserver"
+	httpserver "github.com/adexcell/delayed-notifier/pkg/http/server"
+	"github.com/adexcell/delayed-notifier/pkg/logger"
+	"github.com/adexcell/delayed-notifier/pkg/otel"
 	"github.com/adexcell/delayed-notifier/pkg/postgres"
-	"github.com/adexcell/delayed-notifier/pkg/rabbit"
-	"github.com/adexcell/delayed-notifier/pkg/redis"
-	"github.com/adexcell/delayed-notifier/pkg/router"
-	"github.com/wb-go/wbf/config"
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
-type Config struct {
-	App        App                   `mapstructure:"app"`
-	HTTPServer httpserver.Config     `mapstructure:"httpserver"`
-	Router     router.Config         `mapstructure:"router"`
-	Postgres   postgres.Config       `mapstructure:"postgres"`
-	Redis      redis.Config          `mapstructure:"redis"`
-	Rabbit     rabbit.Config         `mapstructure:"rabbit"`
-	Notifier   NotifierConfig        `mapstructure:"notifier"`
-	Telegram   sender.TelegramConfig `mapstructure:"telegram"`
-	Email sender.EmailConfig    `mapstructure:"email"`
-}
-
 type App struct {
-	AppName    string `mapstructure:"app_name"`
-	AppVersion string `mapstructure:"app_version"`
+	Name    string `envconfig:"APP_NAME"    required:"true"`
+	Version string `envconfig:"APP_VERSION" required:"true"`
 }
 
-type NotifierConfig struct {
-	MaxRetries        int           `mapstructure:"max_retries"`
-	VisibilityTimeout time.Duration `mapstructure:"visibility_timeout"`
-	Interval          time.Duration `mapstructure:"interval"`
-	BatchSize         int           `mapstructure:"batch_size"`
+type Config struct {
+	App      App
+	HTTP     httpserver.Config
+	Logger   logger.Config
+	OTEL     otel.Config
+	Postgres postgres.Config
+	// Redis    redis.Config
+	Router string `envconfig:"GIN_MODE"`
 }
 
-func Load() (*Config, error) {
-	cfg := config.New()
+func New() (Config, error) {
+	var config Config
 
-	cfg.EnableEnv("")
-
-	_ = cfg.LoadEnvFiles(".env")
-
-	if err := cfg.LoadConfigFiles("config/config.yaml"); err != nil {
-		return nil, err
+	err := godotenv.Load(".env")
+	if err != nil {
+		return config, fmt.Errorf("godotenv.Load: %w", err)
 	}
 
-	var res Config
-	if err := cfg.Unmarshal(&res); err != nil {
-		return nil, err
+	err = envconfig.Process("", &config)
+	if err != nil {
+		return config, fmt.Errorf("envconfig.Process: %w", err)
 	}
 
-	return &res, nil
+	return config, nil
 }

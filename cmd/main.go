@@ -1,24 +1,31 @@
 package main
 
 import (
-	"log"
+	"context"
 
-	"github.com/adexcell/delayed-notifier/cmd/app"
+	"github.com/adexcell/delayed-notifier/config"
+	"github.com/adexcell/delayed-notifier/internal/app"
+	"github.com/adexcell/delayed-notifier/pkg/logger"
+	"github.com/adexcell/delayed-notifier/pkg/otel"
+	"github.com/rs/zerolog/log"
 )
 
-// @title          Delayed Notifier API
-// @version        1.0
-// @description    Delayed Notifier
-// @host           localhost:8080
-// @BasePath       /
-
 func main() {
-	app, err := app.New()
+	c, err := config.New()
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Fatal().Err(err).Msg("config.New")
 	}
 
-	if err := app.Run(); err != nil {
-		log.Fatalf("error: %v", err)
+	logger.Init(c.Logger)
+
+	ctx := context.Background()
+
+	if err = otel.Init(ctx, c.OTEL); err != nil {
+		log.Error().Err(err).Msg("otel.Init")
+	}
+	defer otel.Close()
+
+	if err := app.Run(ctx, c); err != nil {
+		log.Error().Err(err).Msg("app.Run")
 	}
 }

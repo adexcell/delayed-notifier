@@ -1,107 +1,112 @@
-DC := docker compose
-PROJECT := delayed_notifier
-APP_SERVICE := delayed_notifier
-MIGRATIONS_DIR := ./migrations
-LOCAL_DSN := "postgres://postgres:postgres@localhost:5432/mydb?sslmode=disable"
+SHELL := /bin/bash
+.DEFAULT_GOAL := help
+
+APP_NAME := delayedNotifier
+COMPOSE := docker compose
+GO := go
+APP_PKG := ./cmd/main
+GOLANGCI_LINT := golangci-lint
 
 .PHONY: help
-help: ## Список команд
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
-
-.PHONY: test
-test: ## Запуск unit-тестов
-	go test -v ./internal/... ./pkg/... ./cmd/... ./config/...
-
-.PHONY: test-coverage
-test-coverage: ## Запуск тестов с отчетом покрытия
-	go test -v -race -coverprofile=coverage.out ./...
-	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report: coverage.html"
-
-.PHONY: test-short
-test-short: ## Быстрые тесты (без race detector)
-	go test -v -short ./...
-
-.PHONY: generate-mocks
-generate-mocks: ## Генерация моков
-	go generate ./internal/mocks
-
-.PHONY: test-usecase
-test-usecase: ## Тесты use case слоя
-	go test -v ./internal/usecase/...
-
-.PHONY: test-controller
-test-controller: ## Тесты controller слоя
-	go test -v ./internal/controller/...
-
-.PHONY: test-worker
-test-worker: ## Тесты worker слоя
-	go test -v ./internal/worker/...
-
-.PHONY: start
-start: test ## Запуск всего проекта в Docker (DB + Migrations + App)
-	$(DC) up -d postgres redis --wait
-	$(MAKE) migrate-up
-	$(DC) --profile app up -d --build
-
-.PHONY: start-local
-start-local: up migrate-up run ## Запуск локально (DB в Docker, App через go run)
-
-.PHONY: run
-run: ## Запуск go run
-	go run ./cmd/main.go
-
-# --- Database & Migrations ---
-
-.PHONY: migrate-up
-migrate-up: ## Накатить миграции (up)
-	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) up
-
-.PHONY: migrate-down
-migrate-down: ## Откатить миграции (down)
-	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) down
-
-.PHONY: migrate-force
-migrate-force: ## Форсировать версию миграции (make migrate-force v=1)
-	migrate -path $(MIGRATIONS_DIR) -database $(LOCAL_DSN) force $(v)
-
-# --- Docker Control ---
+help:
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Dev:"
+	@echo "  make up              Start services"
+	@echo "  make down            Stop everything"
+	@echo "  make logs            Follow logs"
+	@echo "  make ps              Show containers"
+	@echo "  make restart         Restart service"
+	@echo ""
+	@echo "Migrations:"
+	@echo "  make migrate-up      Run migrations (via migrator service)"
+	@echo "  make migrate-down    Rollback 1 migration (via migrator service)"
+	@echo ""
+	@echo "Go:"
+	@echo "  make tidy            go mod tidy"
+	@echo "  make fmt             gofmt"
+	@echo "  make test            go test ./..."
+	@echo "  make build           Build service locally into ./bin/"
+	@echo ""
+	@echo "Lint/format:"
+	@echo "  make lint            Run golangci-lint"
+	@echo "  make lint-fix        Run golangci-lint with --fix"
+	@echo "  make fmt-ci          Run golangci-lint fmt"
+	@echo ""
+	@echo "Docker:"
+	@echo "  make docker-build    Build service image"
 
 .PHONY: up
-up: ## Поднять инфраструктуру (db, redis)
-	$(DC) -p $(PROJECT) up -d --wait
+up:
+	$(COMPOSE) up -d --build
 
 .PHONY: down
-down: ## Остановить и удалить контейнеры
-	$(DC) -p $(PROJECT) down
-
-.PHONY: stop
-stop: ## Остановить контейнеры (без удаления)
-	$(DC) -p $(PROJECT) stop
-
-.PHONY: start-containers
-start-containers: ## Запустить остановленные контейнеры
-	$(DC) -p $(PROJECT) start
-
-.PHONY: clean
-clean: ## Удалить всё (volumes, images)
-	$(DC) down -v && docker system prune -f
-
-# --- Logs & Utils ---
-
-.PHONY: logs
-logs: ## Видеть логи всех сервисов
-	$(DC) logs -f
-
-.PHONY: logs-app
-logs-app: ## Логи сервиса приложения
-	$(DC) logs -f $(APP_SERVICE)
+down:
+	$(COMPOSE) down -v
 
 .PHONY: ps
-ps: ## Статус контейнеров
-	$(DC) ps
+ps:
+	$(COMPOSE) ps
 
-.PHONY: exec-app
-exec-app: ## Зайти в контейнер приложения (bash)
-	$(DC) exec $(APP_SERVICE) /bin/sh
+.PHONY: logs
+logs:
+	$(COMPOSE) logs -f --tail=200
+
+.PHONY: restart
+restart:
+	$(COMPOSE) restart $(APP_NAME)
+
+migrate-install:
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.18.1
+
+migrate-create:
+	@read -p "Name:" name; \
+	migrate create -ext sql -dir "$(MIGRATE_PATH)" $$name
+
+migrate-up:
+	migrate -database "$(DB_MIGRATE_URL)" -path "$(MIGRATE_PATH)" up
+
+migrate-down:
+	migrate -database "$(DB_MIGRATE_URL)" -path "$(MIGRATE_PATH)" down -all
+
+generate:
+	go generate ./...
+
+mockery-install:
+	go install github.com/vektra/mockery/v3@v3.2.5
+
+.PHONY: tidy
+tidy:
+	$(GO) mod tidy
+
+.PHONY: fmt
+fmt:
+	gofmt -w .
+
+.PHONY: test
+test:
+	$(GO) test ./...
+
+.PHONY: build
+build:
+	mkdir -p bin
+	CGO_ENABLED=0 $(GO) build -o bin/$(APP_NAME) $(APP_PKG)
+
+.PHONY: docker-build
+docker-build:
+	$(COMPOSE) build $(APP_NAME)
+
+.PHONY: lint
+lint:
+	$(GOLANGCI_LINT) run ./...
+
+.PHONY: lint-fix
+lint-fix:
+	$(GOLANGCI_LINT) run --fix ./...
+
+.PHONY: fmt-ci
+fmt-ci:
+	$(GOLANGCI_LINT) fmt ./...
+
+oapi-install:
+	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest

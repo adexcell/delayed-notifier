@@ -1,66 +1,111 @@
-version: "3"
+version: '3'
 
 services:
-  delayed:
-    build: .
-    command: ./app
-    container_name: delayed_notifier
-    ports:
-      - "8080:8080"
-    environment:
-      - POSTGRES_MASTER_DSN=postgres://postgres:postgres@postgres:5432/mydb?sslmode=disable
-      - REDIS_ADDR=redis:6379
-      - REDIS_PASSWORD=password
-      - RABBIT_URL=amqp://myuser:mypassword@rabbitmq:5672/
-
-    env_file:
-      - .env
-    networks:
-      - app-network
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - '8080:8080'
+#    depends_on:
+#      - redis
+#      - postgres
+#      - tempo
 
   postgres:
-    image: postgres:17-alpine
-    container_name: delayed_pg
-    restart: always
-    shm_size: 128mb
-    ports:
-      - "5432:5432"
+    image: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydb
-    volumes:
-      - ${PG_DATA_DIR:-./pg_data}:/var/lib/postgresql/data
-    networks:
-      - app-network
+      POSTGRES_USER: 'login'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'postgres'
+    ports:
+      - '5432:5432'
 
   redis:
-    image: redis:7-alpine
-    container_name: delayed_redis
-    command: redis-server --requirepass password --appendonly yes
-    restart: unless-stopped
+    image: redis:alpine
     ports:
-      - "6379:6379"
-    environment:
-      REDIS_PASSWORD: password
-    volumes:
-      - ${REDIS_DATA_DIR:-./redis_data}:/data
-    networks:
-      - app-network
+      - '6379:6379'
 
-  rabbitmq:
-    image: heidiks/rabbitmq-delayed-message-exchange:latest
-    container_name: delayed_rabbitmq
+  redis-ui:
+    image: rediscommander/redis-commander
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '8081:8081'
     environment:
-      RABBITMQ_DEFAULT_USER: myuser
-      RABBITMQ_DEFAULT_PASS: mypassword
-    volumes:
-      - ${RABBITMQ_DATA_DIR:-./rabbitmq_data}:/data
-    networks:
-      - app-network
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
 
-networks:
-  app-network:
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - '9092:9092' # internal
+      - '9094:9094' # external
+    environment:
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: 'controller,broker'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka:9099'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9099,EXTERNAL://:9094'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  kafka-init:
+    image: confluentinc/cp-kafka:latest
+    command: |
+      bash -c "
+      kafka-topics --create --bootstrap-server kafka:9092 --topic awesome-topic --partitions 8 --if-not-exists
+      "
+    restart: on-failure
+    depends_on:
+      - kafka
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    ports:
+      - "8082:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - kafka
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./observability/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - '3200:3200'  # tempo
+      - '4317:4317'  # otlp grpc
+
+  prometheus:
+    image: prom/prometheus:v2.53.4
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./observability/prometheus.yaml:/etc/prometheus.yaml
+    ports:
+      - '9090:9090'
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./observability/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./observability/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./observability/grafana/default.json:/var/lib/grafana/dashboards/default.json
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/default.json
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceQLStreaming metricsSummary
+    ports:
+      - '3000:3000'
