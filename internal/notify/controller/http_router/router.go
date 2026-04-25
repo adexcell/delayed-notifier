@@ -1,7 +1,7 @@
 package httprouter
 
 import (
-	ver1 "github.com/adexcell/delayed-notifier/internal/entity/controller/http_router/v1"
+	ver1 "github.com/adexcell/delayed-notifier/internal/notify/controller/http_router/v1"
 	"github.com/adexcell/delayed-notifier/pkg/logger"
 	"github.com/adexcell/delayed-notifier/pkg/metrics"
 	"github.com/adexcell/delayed-notifier/pkg/otel"
@@ -11,7 +11,7 @@ import (
 )
 
 // NewRouter creates and configures the HTTP router with middleware and routes.
-func EntityRouter(r *ginext.Engine, uc ver1.UseCase, m *metrics.HTTPServer) {
+func NotifyRouter(r *ginext.Engine, uc ver1.Usecase, m *metrics.HTTPServer) {
 	v1 := ver1.New(uc)
 
 	// Expose metrics endpoint (separate from application routes)
@@ -21,8 +21,12 @@ func EntityRouter(r *ginext.Engine, uc ver1.UseCase, m *metrics.HTTPServer) {
 		api.Use(logger.Middleware())
 		api.Use(metrics.NewMiddleware(m))
 		api.Use(otel.Middleware())
-		
-		api.GET("/ping", v1.Ping)
+
+		api.POST("/notify", v1.CreateNotify)
+		api.GET("/notify/:id", v1.GetNotify)
+		api.DELETE("/notify/:id", v1.DeleteNotify)
+		api.PUT("/notify/:id", v1.UpdateNotify)
+
 	}
 
 }

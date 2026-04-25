@@ -49,7 +49,7 @@ func Run(ctx context.Context, c config.Config) (err error) {
 	deps.Metrics = metrics.NewHTTPServer()
 
 	// Domains
-	EntityDomain(deps)
+	NotifyDomain(deps)
 
 	// Start http server
 	httpserver := httpserver.New(deps.RouterHTTP, c.HTTP)
