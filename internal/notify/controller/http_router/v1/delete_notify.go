@@ -1,22 +1,26 @@
 package v1
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 	"github.com/wb-go/wbf/ginext"
+
+	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 )
 
+// DeleteNotify DELETE /notify/{id} — отмена запланированного уведомления.
 func (h *Handler) DeleteNotify(c *ginext.Context) {
-	var input dto.DeleteNotifyInput
+	input := dto.DeleteNotifyInput{
+		ID: c.Param("id"),
+	}
 
-	if err := json.NewDecoder(c.Request.Body).Decode(&input); err != nil {
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, ginext.H{"error": "invalid json"})
 		return
 	}
 
-	err := h.usecase.DeleteNotify(c, input)
+	err = h.usecase.DeleteNotify(c, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ginext.H{"error": "request failed"})
 		return

@@ -4,11 +4,10 @@ import (
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
-	"github.com/google/uuid"
 )
 
 type UpdateNotifyInput struct {
-	ID          uuid.UUID      `json:"id"`
+	ID          string         `json:"id"`
 	Channel     domain.Channel `json:"channel" validate:"required,oneof=email telegram"`
 	Recipient   string         `json:"recipient" validate:"required"`
 	Subject     *string        `json:"subject,omitempty"` // optionally for email, may be nil

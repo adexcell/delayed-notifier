@@ -17,10 +17,6 @@ type CreateNotifyInput struct {
 
 type CreateNotifyOutput struct {
 	ID          uuid.UUID      `json:"id"`
-	Status      string         `json:"status"`
-	ScheduledAt time.Time      `json:"scheduled_at"`
-	Channel     domain.Channel `json:"channel"`
-	Recipient   string         `json:"recipient"`
 }
 
 func(i CreateNotifyInput) ToDomain() domain.Notify {

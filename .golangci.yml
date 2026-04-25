@@ -1,6 +1,8 @@
 version: "2"
 
 linters:
+  enable:
+    - wsl_v5
   default: all
   disable:
     - exhaustruct         # Проверяет, что все поля структуры инициализированы при её создании.
@@ -15,6 +17,10 @@ linters:
     - depguard            # Запрещает использование определённых пакетов в коде.
 
   settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2 
     gocritic:
       enabled-tags:
         - diagnostic
