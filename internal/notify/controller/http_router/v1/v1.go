@@ -6,6 +6,7 @@ import (
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 )
 
+//go:generate mockgen -source=handlers.go -destination=mocks/mock.go
 type Usecase interface {
 	CreateNotify(ctx context.Context, input dto.CreateNotifyInput) (dto.CreateNotifyOutput, error)
 	GetNotify(ctx context.Context, input dto.GetNotifyInput) (dto.GetNotifyOutput, error)

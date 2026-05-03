@@ -16,7 +16,7 @@ func (h *Handler) UpdateNotify(c *ginext.Context) {
 		return
 	}
 
-	err = h.usecase.UpdateNotify(c, input)
+	err = h.usecase.UpdateNotify(c.Request.Context(), input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ginext.H{"error": "request failed"})
 		return

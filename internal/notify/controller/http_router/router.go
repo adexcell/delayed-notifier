@@ -16,10 +16,10 @@ func NotifyRouter(r *ginext.Engine, uc ver1.Usecase, m *metrics.HTTPServer) {
 
 	// Expose metrics endpoint (separate from application routes)
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	api := r.Group("api/notify")
+	api := r.Group("api/v1/notifies")
 	{
 		api.Use(logger.Middleware())
-		api.Use(metrics.NewMiddleware(m))
+		api.Use(metrics.Middleware(m))
 		api.Use(otel.Middleware())
 
 		api.POST("", v1.CreateNotify)

@@ -3,12 +3,15 @@ package config
 import (
 	"fmt"
 
+	"github.com/adexcell/delayed-notifier/internal/notify/adapter/rabbitmq"
 	httpserver "github.com/adexcell/delayed-notifier/pkg/http/server"
 	"github.com/adexcell/delayed-notifier/pkg/logger"
 	"github.com/adexcell/delayed-notifier/pkg/otel"
 	"github.com/adexcell/delayed-notifier/pkg/postgres"
+	"github.com/adexcell/delayed-notifier/pkg/redis"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/wb-go/wbf/retry"
 )
 
 type App struct {
@@ -17,13 +20,15 @@ type App struct {
 }
 
 type Config struct {
-	App      App
-	HTTP     httpserver.Config
-	Logger   logger.Config
-	OTEL     otel.Config
-	Postgres postgres.Config
-	// Redis    redis.Config
-	Router string `envconfig:"GIN_MODE"`
+	App           App
+	HTTP          httpserver.Config
+	Logger        logger.Config
+	OTEL          otel.Config
+	Postgres      postgres.Config
+	RabbitMQ      rabbitmq.Config
+	Redis         redis.Config
+	RetryStrategy retry.Strategy
+	Router        string `envconfig:"GIN_MODE"`
 }
 
 func New() (Config, error) {

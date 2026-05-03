@@ -1,0 +1,35 @@
+package retry
+
+import (
+	"context"
+	"time"
+)
+
+type Config struct {
+	Attempts int           `default:"3"   envconfig:"RETRY_ATTEMPTS"`
+	Delay    time.Duration `default:"1s"  envconfig:"RETRY_DELAY"`
+	Backoff  float64       `default:"1.5" envconfig:"RETRY_BACKOFF"`
+}
+
+func DoWithContext(ctx context.Context, fn func() error, c Config) error {
+	var err error
+
+	delay := c.Delay
+
+	for range c.Attempts {
+		err = fn()
+		if err == nil {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(delay):
+		}
+
+		delay = time.Duration(float64(delay) * c.Backoff)
+	}
+
+	return err
+}

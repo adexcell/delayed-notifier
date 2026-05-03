@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	Host string `default:"localhost" envconfig:"HTTP_HOST"`
-	Port string `default:"8080" envconfig:"HTTP_PORT"`
+	Port string `default:"8080"      envconfig:"HTTP_PORT"`
 }
 
 type Server struct {

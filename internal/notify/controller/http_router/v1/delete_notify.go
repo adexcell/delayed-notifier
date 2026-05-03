@@ -20,7 +20,7 @@ func (h *Handler) DeleteNotify(c *ginext.Context) {
 		return
 	}
 
-	err = h.usecase.DeleteNotify(c, input)
+	err = h.usecase.DeleteNotify(c.Request.Context(), input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ginext.H{"error": "request failed"})
 		return

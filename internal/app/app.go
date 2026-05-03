@@ -8,15 +8,15 @@ import (
 	"syscall"
 
 	"github.com/adexcell/delayed-notifier/config"
+	"github.com/adexcell/delayed-notifier/internal/notify/adapter/rabbitmq"
 	httpserver "github.com/adexcell/delayed-notifier/pkg/http/server"
 	"github.com/adexcell/delayed-notifier/pkg/metrics"
 	"github.com/adexcell/delayed-notifier/pkg/postgres"
+	"github.com/adexcell/delayed-notifier/pkg/redis"
 	"github.com/rs/zerolog/log"
 
 	"github.com/wb-go/wbf/ginext"
 	kafkav2 "github.com/wb-go/wbf/kafka/kafka-v2"
-	"github.com/wb-go/wbf/rabbitmq"
-	"github.com/wb-go/wbf/redis"
 )
 
 type Dependencies struct {
@@ -24,7 +24,7 @@ type Dependencies struct {
 	Postgres      *postgres.Pool
 	KafkaProducer *kafkav2.Producer
 	Redis         *redis.Client
-	RabbitMQ      *rabbitmq.RabbitClient
+	RabbitMQ      *rabbitmq.Client
 
 	// Controllers
 	RouterHTTP    *ginext.Engine
@@ -40,6 +40,11 @@ func Run(ctx context.Context, c config.Config) (err error) {
 	deps.Postgres, err = postgres.New(ctx, c.Postgres)
 	if err != nil {
 		return fmt.Errorf("pgxdriver.New: %w", err)
+	}
+
+	deps.RabbitMQ, err = rabbitmq.New(ctx, c.RabbitMQ)
+	if err != nil {
+		return fmt.Errorf("rabbitmq.New: %w", err)
 	}
 
 	// Controllers

@@ -2,16 +2,28 @@ package usecase
 
 import (
 	"context"
+	"time"
 
+	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
-	"github.com/adexcell/delayed-notifier/pkg/otel/tracer"
+	"github.com/google/uuid"
 )
 
-type Postgres interface{}
+type Postgres interface {
+	CreateNotify(ctx context.Context, notify domain.Notify) error
+	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Notify, error)
+	UpdateNotify(ctx context.Context, notify domain.Notify) error
+	DeleteNotify(ctx context.Context, notifyID uuid.UUID) error
+}
 
-type Redis interface{}
+type Redis interface {
+	SetNotifyStatus(ctx context.Context, key, value string, ttl time.Duration) error
+	GetNotifyStatus(ctx context.Context, key string) (string, error)
+}
 
-type RabbitMQ interface{}
+type RabbitMQ interface {
+	PublishNotify(ctx context.Context, notify domain.Notify) error
+}
 
 type NotifyUsecase struct {
 	postgres Postgres
@@ -27,19 +39,14 @@ func New(postgres Postgres, redis Redis, rabbit RabbitMQ) *NotifyUsecase {
 	}
 }
 
-func (u *NotifyUsecase) CreateNotify(ctx context.Context, input dto.CreateNotifyInput) (dto.CreateNotifyOutput, error) {
-	ctx, span := tracer.Start(ctx, "notify usecase CreateNotify")
-	defer span.End()
-
-	return dto.CreateNotifyOutput{}, nil
-}
-
 func (u *NotifyUsecase) GetNotify(ctx context.Context, input dto.GetNotifyInput) (dto.GetNotifyOutput, error) {
 	return dto.GetNotifyOutput{}, nil
 }
+
 func (u *NotifyUsecase) DeleteNotify(ctx context.Context, input dto.DeleteNotifyInput) error {
 	return nil
 }
+
 func (u *NotifyUsecase) UpdateNotify(ctx context.Context, input dto.UpdateNotifyInput) error {
 	return nil
 }

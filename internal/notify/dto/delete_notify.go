@@ -1,5 +1,5 @@
 package dto
 
 type DeleteNotifyInput struct {
-	ID string `json:"id"`
+	ID string `binding:"required" json:"id"`
 }

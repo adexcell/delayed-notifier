@@ -6,7 +6,7 @@ import (
 	"github.com/wb-go/wbf/ginext"
 )
 
-func NewMiddleware(metrics *HTTPServer) ginext.HandlerFunc {
+func Middleware(metrics *HTTPServer) ginext.HandlerFunc {
 	return func(c *ginext.Context) {
 		// 1. Засекаем время
 		start := time.Now()

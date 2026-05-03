@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel notification_channel NOT NULL,
-    recipient TEXT NOT NULL,
+    recipient_email TEXT NOT NULL,
     subject VARCHAR(255),
     body TEXT NOT NULL,
     scheduled_at TIMESTAMPTZ NOT NULL,

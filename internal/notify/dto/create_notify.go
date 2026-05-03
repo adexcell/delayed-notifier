@@ -8,24 +8,22 @@ import (
 )
 
 type CreateNotifyInput struct {
-	Channel     domain.Channel `json:"channel" validate:"required,oneof=email telegram"`
-	Recipient   string         `json:"recipient" validate:"required"`
-	Subject     *string        `json:"subject,omitempty"`
-	Body        string         `json:"body" validate:"required"`
-	ScheduledAt time.Time      `json:"scheduled_at" validate:"required,gt=now"`
+	RecipientEmail string    `binding:"required,email" json:"recipient_email"`
+	Subject        string    `binding:"lte=255"        json:"subject,omitempty"`
+	Body           string    `binding:"required"       json:"body"`
+	ScheduledAt    time.Time `binding:"required,gt"    json:"scheduled_at"`
 }
 
 type CreateNotifyOutput struct {
-	ID          uuid.UUID      `json:"id"`
+	ID uuid.UUID `json:"id"`
 }
 
-func(i CreateNotifyInput) ToDomain() domain.Notify {
+func (i CreateNotifyInput) ToDomain() domain.Notify {
 	return domain.Notify{
-		ID:      uuid.New(),
-		Channel: i.Channel,
-		Recipient: i.Recipient,
-		Subject: i.Subject,
-		Body: i.Body,
-		ScheduledAt: i.ScheduledAt,
+		ID:             uuid.New(),
+		RecipientEmail: i.RecipientEmail,
+		Subject:        i.Subject,
+		Body:           i.Body,
+		ScheduledAt:    i.ScheduledAt,
 	}
 }

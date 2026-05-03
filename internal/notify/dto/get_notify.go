@@ -5,7 +5,7 @@ import (
 )
 
 type GetNotifyInput struct {
-	ID string `json:"id"`
+	ID string `binding:"required" json:"id"`
 }
 
 type GetNotifyOutput struct {
