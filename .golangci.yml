@@ -1,74 +1,74 @@
-# version: "2"
-# run:
-#   tests: false
-# linters:
-#   enable:
-#     - asasalint
-#     - bodyclose
-#     - dogsled
-#     - dupl
-#     - durationcheck
-#     - err113
-#     - errorlint
-#     - exhaustive
-#     - forbidigo
-#     - gocognit
-#     - goconst
-#     - gocritic
-#     - gocyclo
-#     - godot
-#     - godox
-#     - goprintffuncname
-#     - gosec
-#     - importas
-#     - lll
-#     - makezero
-#     - misspell
-#     - mnd
-#     - nakedret
-#     - nestif
-#     - noctx
-#     - nolintlint
-#     - prealloc
-#     - predeclared
-#     - revive
-#     - rowserrcheck
-#     - sqlclosecheck
-#     - staticcheck
-#     - testpackage
-#     - thelper
-#     - tparallel
-#     - unparam
-#     - wastedassign
-#     - whitespace
-#     - zerologlint
-#   disable:
-#     - wrapcheck
-#   settings:
-#     gocyclo:
-#       min-complexity: 15
-#     lll:
-#       line-length: 120
-#   exclusions:
-#     generated: lax
-#     paths:
-#       - third_party$
-#       - builtin$
-#       - examples$
-# issues:
-#   max-issues-per-linter: 0
-#   max-same-issues: 0
-# formatters:
-#   enable:
-#     - gci
-#     - gofmt
-#     - goimports
-#   settings:
-#     gofmt:
-#       simplify: true
-#   exclusions:
-#     generated: lax
-#     paths:
-#       - third_party$
-#       - builtin$
-#       - examples$
+version: "2"
+run:
+  tests: false
+linters:
+  enable:
+    - asasalint
+    - bodyclose
+    - dogsled
+    - dupl
+    - durationcheck
+    - err113
+    - errorlint
+    - exhaustive
+    - forbidigo
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - goprintffuncname
+    - gosec
+    - importas
+    - lll
+    - makezero
+    - misspell
+    - mnd
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - testpackage
+    - thelper
+    - tparallel
+    - unparam
+    - wastedassign
+    - whitespace
+    - zerologlint
+  disable:
+    - wrapcheck
+  settings:
+    gocyclo:
+      min-complexity: 15
+    lll:
+      line-length: 120
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

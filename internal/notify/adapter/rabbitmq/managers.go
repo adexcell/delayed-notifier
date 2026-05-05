@@ -1,23 +1,24 @@
 package rabbitmq
 
 import (
+	"context"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
 )
 
-func (c *Client) manageConsumeChannel() {
+func (c *Client) manageConsumeChannel(ctx context.Context) {
 	for {
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			return
 		default:
 		}
 
 		conn := c.getConn()
 		if conn == nil {
-			if !c.sleep(reInitDelay) {
+			if !c.sleep(ctx, reInitDelay) {
 				return
 			}
 
@@ -28,7 +29,7 @@ func (c *Client) manageConsumeChannel() {
 		if err != nil {
 			log.Warn().Msg("Failed to create sub channel")
 
-			if !c.sleep(time.Second) {
+			if !c.sleep(ctx, time.Second) {
 				return
 			}
 
@@ -38,7 +39,7 @@ func (c *Client) manageConsumeChannel() {
 		if err := subCh.Qos(prefetchCount, 0, false); err != nil {
 			c.clearAndCloseSubChannel(subCh)
 
-			if !c.sleep(reInitDelay) {
+			if !c.sleep(ctx, reInitDelay) {
 				return
 			}
 
@@ -70,7 +71,7 @@ func (c *Client) manageConsumeChannel() {
 		subCh.NotifyClose(subClose)
 
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			c.clearAndCloseSubChannel(subCh)
 
 			return
@@ -82,7 +83,7 @@ func (c *Client) manageConsumeChannel() {
 				log.Warn().Err(err).Msg("[RabbitMQ] Consumer channel closed. Re-init.")
 			}
 
-			if !c.sleep(reInitDelay) {
+			if !c.sleep(ctx, reInitDelay) {
 				return
 			}
 		}
@@ -109,17 +110,17 @@ func (c *Client) clearAndCloseSubChannel(subCh *amqp.Channel) {
 	c.subMu.Unlock()
 }
 
-func (c *Client) managePubChannel() {
+func (c *Client) managePubChannel(ctx context.Context) {
 	for {
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			return
 		default:
 		}
 
 		conn := c.getConn()
 		if conn == nil {
-			if !c.sleep(reInitDelay) {
+			if !c.sleep(ctx, reInitDelay) {
 				return
 			}
 
@@ -130,7 +131,7 @@ func (c *Client) managePubChannel() {
 		if err != nil {
 			log.Warn().Msg("Failed to create pub channel")
 
-			if !c.sleep(time.Second) {
+			if !c.sleep(ctx, time.Second) {
 				return
 			}
 
@@ -141,7 +142,7 @@ func (c *Client) managePubChannel() {
 			log.Error().Err(err).Msg("Failed to enable confirms")
 			c.clearAndClosePubChannel(pubCh)
 
-			if !c.sleep(time.Second) {
+			if !c.sleep(ctx, time.Second) {
 				return
 			}
 
@@ -173,7 +174,7 @@ func (c *Client) managePubChannel() {
 		pubCh.NotifyClose(pubClose)
 
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			c.clearAndClosePubChannel(pubCh)
 
 			return
@@ -185,7 +186,7 @@ func (c *Client) managePubChannel() {
 				log.Warn().Err(err).Msg("[RabbitMQ] Publisher channel closed. Re-init.")
 			}
 
-			if !c.sleep(reInitDelay) {
+			if !c.sleep(ctx, reInitDelay) {
 				return
 			}
 		}

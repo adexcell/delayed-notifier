@@ -36,10 +36,15 @@ type Dependencies struct {
 func Run(ctx context.Context, c config.Config) (err error) {
 	var deps Dependencies
 
-	// Adapters
+	// ---------Adapters---------
 	deps.Postgres, err = postgres.New(ctx, c.Postgres)
 	if err != nil {
 		return fmt.Errorf("pgxdriver.New: %w", err)
+	}
+
+	deps.Redis, err = redis.New(ctx, c.Redis)
+	if err != nil {
+		return fmt.Errorf("redis.New: %w", err)
 	}
 
 	deps.RabbitMQ, err = rabbitmq.New(ctx, c.RabbitMQ)
@@ -47,16 +52,19 @@ func Run(ctx context.Context, c config.Config) (err error) {
 		return fmt.Errorf("rabbitmq.New: %w", err)
 	}
 
-	// Controllers
+	// ---------Controllers---------
 	deps.RouterHTTP = ginext.New(c.Router)
 
-	// Metrics
+	// ---------Metrics---------
 	deps.Metrics = metrics.NewHTTPServer()
 
-	// Domains
-	NotifyDomain(deps)
+	// ---------Domains---------
+	notify, err := NewNotifyDomain(ctx, deps, c)
+	if err != nil {
+		return fmt.Errorf("NotifyDomain(deps): %w", err)
+	}
 
-	// Start http server
+	// ---------Start http server---------
 	httpserver := httpserver.New(deps.RouterHTTP, c.HTTP)
 	log.Info().Msg("App started!")
 
@@ -67,10 +75,14 @@ func Run(ctx context.Context, c config.Config) (err error) {
 
 	log.Info().Msg("App got signal to stop")
 
-	// Controllers close
+	notify.Stop()
+
+	// ---------Controllers close---------
 	httpserver.Close()
 
-	// Adapters close
+	// ---------Adapters close---------
+	deps.RabbitMQ.Close()
+	deps.Redis.Close()
 	deps.Postgres.Close()
 
 	log.Info().Msg("App stopped!")

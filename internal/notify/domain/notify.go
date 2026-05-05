@@ -2,13 +2,12 @@ package domain
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/notify/domain/validation"
 	"github.com/google/uuid"
 )
-
-type Channel string
 
 const (
 	defaultMaxRetries = 3
@@ -29,7 +28,6 @@ type Notify struct {
 }
 
 func NewNotify(
-	channel Channel,
 	email string,
 	subject string,
 	body string,
@@ -40,11 +38,16 @@ func NewNotify(
 		RecipientEmail: email,
 		Subject:        subject,
 		Body:           body,
-		ScheduledAt:    scheduledAt,
-		Status:         Pending,
+		ScheduledAt:    scheduledAt.UTC(),
+		Status:         StatusPending,
 		RetryCount:     0,
 		MaxRetries:     defaultMaxRetries,
 		CreatedAt:      time.Now().UTC(),
+	}
+
+	delay := n.ScheduledAt.UnixMilli() - n.CreatedAt.UnixMilli()
+	if delay > math.MaxUint32 {
+		return Notify{}, ErrScheduledTime
 	}
 
 	err := validation.Validate(n)

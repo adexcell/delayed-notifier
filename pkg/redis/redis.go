@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Addr     string `envconfig:"REDIS_ADDR"     required:"true"`
 	Password string `envconfig:"REDIS_PASSWORD"`
-	DB       int    `default:"0"                envconfig:"REDIS_DB"`
+	DB       int    `envconfig:"REDIS_DB"       default:"0"`
 }
 
 type Client struct {
@@ -31,7 +31,7 @@ func New(ctx context.Context, c Config) (*Client, error) {
 
 	log.Info().Str("redis status", pong).Msg("Connected to Redis")
 
-	return &Client{Client: client}, nil
+	return &Client{Client: client}, client.Ping(ctx).Err()
 }
 
 func (c *Client) Close() {

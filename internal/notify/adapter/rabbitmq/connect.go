@@ -1,14 +1,16 @@
 package rabbitmq
 
 import (
+	"context"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
 )
 
-func (c *Client) connect() {
+func (c *Client) connect(ctx context.Context) {
 	for {
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			return
 		default:
 		}
@@ -17,7 +19,7 @@ func (c *Client) connect() {
 		if err != nil {
 			log.Warn().Err(err).Msg("[RabbitMQ] Connection failed. Reconnect.")
 
-			if !c.sleep(reconnectDelay) {
+			if !c.sleep(ctx, reconnectDelay) {
 				return
 			}
 
@@ -31,7 +33,7 @@ func (c *Client) connect() {
 
 			log.Warn().Err(err).Msg("[RabbitMQ] init topology failed. Reconnect.")
 
-			if !c.sleep(reconnectDelay) {
+			if !c.sleep(ctx, reconnectDelay) {
 				return
 			}
 
@@ -46,7 +48,7 @@ func (c *Client) connect() {
 		conn.NotifyClose(connClose)
 
 		select {
-		case <-c.ctx.Done():
+		case <-ctx.Done():
 			c.clearAndCloseConn(conn)
 
 			return
@@ -54,13 +56,13 @@ func (c *Client) connect() {
 		case err := <-connClose:
 			c.clearAndCloseConn(conn)
 
-			if err == nil && c.ctx.Err() != nil {
+			if err == nil && ctx.Err() != nil {
 				return // graceful shutdown
 			}
 
 			log.Warn().Err(err).Msg("[RabbitMQ] Connection lost. Reconnect.")
 
-			if !c.sleep(reconnectDelay) {
+			if !c.sleep(ctx, reconnectDelay) {
 				return
 			}
 		}

@@ -25,8 +25,6 @@ func NotifyRouter(r *ginext.Engine, uc ver1.Usecase, m *metrics.HTTPServer) {
 		api.POST("", v1.CreateNotify)
 		api.GET("/:id", v1.GetNotify)
 		api.DELETE("/:id", v1.DeleteNotify)
-		api.PUT("/:id", v1.UpdateNotify)
-
 	}
 
 }

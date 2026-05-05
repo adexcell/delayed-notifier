@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 	"github.com/adexcell/delayed-notifier/pkg/otel/tracer"
 )
@@ -13,12 +15,20 @@ func (u *NotifyUsecase) CreateNotify(ctx context.Context, input dto.CreateNotify
 
 	var output dto.CreateNotifyOutput
 
-	// notify, err := domain.NewNotify(input.Channel, input.Recipient, input.Subject, input.Body, input.ScheduledAt)
-	// if err != nil {
-	// 	return output, fmt.Errorf("domain.NewNotify: %w", err)
-	// }
+	notify, err := domain.NewNotify(input.RecipientEmail, input.Subject, input.Body, input.ScheduledAt)
+	if err != nil {
+		return output, fmt.Errorf("domain.NewNotify: %w", err)
+	}
 
-	// output.ID = notify.ID
+	err = u.postgres.CreateNotify(ctx, notify)
+	if err != nil {
+		return output, fmt.Errorf("u.postgres.CreateNotify: %w", err)
+	}
+
+	delivery := dto.ToDelivery(notify)
+	u.asyncRabbitWriter.Send(ctx, delivery)
+
+	output.ID = notify.ID
 
 	return output, nil
 }

@@ -6,12 +6,12 @@ import (
 )
 
 type Config struct {
-	Attempts int           `default:"3"   envconfig:"RETRY_ATTEMPTS"`
+	Attempts int           `default:"5"   envconfig:"RETRY_ATTEMPTS"`
 	Delay    time.Duration `default:"1s"  envconfig:"RETRY_DELAY"`
-	Backoff  float64       `default:"1.5" envconfig:"RETRY_BACKOFF"`
+	Backoff  float64       `default:"2" envconfig:"RETRY_BACKOFF"`
 }
 
-func DoWithContext(ctx context.Context, fn func() error, c Config) error {
+func DoWithContext(ctx context.Context, c Config, fn func() error) error {
 	var err error
 
 	delay := c.Delay

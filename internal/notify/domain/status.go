@@ -3,43 +3,43 @@ package domain
 type Status int
 
 const (
-	Unknown Status = iota
-	Pending
-	Processing
-	Sent
-	Failed
-	Cancelled
+	StatusUnknown Status = iota
+	StatusPending
+	StatusProcessing
+	StatusSent
+	StatusFailed
+	StatusCancelled
 )
 
 func NewStatus(s string) Status {
 	switch s {
 	case "pending":
-		return Pending
+		return StatusPending
 	case "processing":
-		return Processing
+		return StatusProcessing
 	case "sent":
-		return Sent
+		return StatusSent
 	case "failed":
-		return Failed
+		return StatusFailed
 	case "cancelled":
-		return Cancelled
+		return StatusCancelled
 	default:
-		return Unknown
+		return StatusUnknown
 	}
 }
 
 //nolint:exhaustive
 func (s Status) String() string {
 	switch s {
-	case Pending:
+	case StatusPending:
 		return "pending"
-	case Processing:
+	case StatusProcessing:
 		return "processing"
-	case Sent:
+	case StatusSent:
 		return "sent"
-	case Failed:
+	case StatusFailed:
 		return "failed"
-	case Cancelled:
+	case StatusCancelled:
 		return "cancelled"
 	default:
 		return "unknown"

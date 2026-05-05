@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"time"
 
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
@@ -11,42 +10,36 @@ import (
 
 type Postgres interface {
 	CreateNotify(ctx context.Context, notify domain.Notify) error
-	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Notify, error)
-	UpdateNotify(ctx context.Context, notify domain.Notify) error
+	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Status, error)
 	DeleteNotify(ctx context.Context, notifyID uuid.UUID) error
 }
 
 type Redis interface {
-	SetNotifyStatus(ctx context.Context, key, value string, ttl time.Duration) error
-	GetNotifyStatus(ctx context.Context, key string) (string, error)
+	GetNotifyStatus(ctx context.Context, key string) (domain.Status, error)
 }
 
-type RabbitMQ interface {
-	PublishNotify(ctx context.Context, notify domain.Notify) error
+type AsyncRabbitWriter interface {
+	Send(ctx context.Context, delivery dto.Delivery)
+}
+
+type AsyncRedisWriter interface {
+	Send(ctx context.Context, task domain.NotifyStatusTask)
 }
 
 type NotifyUsecase struct {
-	postgres Postgres
-	redis    Redis
-	rabbit   RabbitMQ
+	postgres          Postgres
+	redis             Redis
+	asyncRedisWriter  AsyncRedisWriter
+	asyncRabbitWriter AsyncRabbitWriter
+	notifyStatusCH    chan string
 }
 
-func New(postgres Postgres, redis Redis, rabbit RabbitMQ) *NotifyUsecase {
+func New(postgres Postgres, redis Redis, asyncRedisWriter AsyncRedisWriter, asyncRabbitWriter AsyncRabbitWriter) *NotifyUsecase {
 	return &NotifyUsecase{
-		postgres: postgres,
-		redis:    redis,
-		rabbit:   rabbit,
+		postgres:          postgres,
+		redis:             redis,
+		asyncRedisWriter:  asyncRedisWriter,
+		asyncRabbitWriter: asyncRabbitWriter,
+		notifyStatusCH:    make(chan string, 1000),
 	}
-}
-
-func (u *NotifyUsecase) GetNotify(ctx context.Context, input dto.GetNotifyInput) (dto.GetNotifyOutput, error) {
-	return dto.GetNotifyOutput{}, nil
-}
-
-func (u *NotifyUsecase) DeleteNotify(ctx context.Context, input dto.DeleteNotifyInput) error {
-	return nil
-}
-
-func (u *NotifyUsecase) UpdateNotify(ctx context.Context, input dto.UpdateNotifyInput) error {
-	return nil
 }

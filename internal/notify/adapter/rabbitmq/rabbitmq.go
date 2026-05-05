@@ -32,7 +32,7 @@ type Config struct {
 // further locks, or safeguards, to keep your application safe from data races.
 type Client struct {
 	addr      string
-	wg        sync.WaitGroup
+	wg        *sync.WaitGroup
 	cfg       Config
 	mu        sync.Mutex
 	conn      *amqp.Connection
@@ -40,8 +40,6 @@ type Client struct {
 	pubCh     *amqp.Channel
 	subMu     sync.Mutex
 	subCh     *amqp.Channel
-	ctx       context.Context
-	cancel    context.CancelFunc
 	closeOnce sync.Once
 }
 
@@ -66,18 +64,14 @@ func New(ctx context.Context, c Config) (*Client, error) {
 		c.Port,
 	)
 
-	ctx, cancel := context.WithCancel(ctx)
-
 	client := Client{
 		addr:   addr,
 		mu:     sync.Mutex{},
-		wg:     sync.WaitGroup{},
+
 		cfg:    c,
-		ctx:    ctx,
-		cancel: cancel,
 	}
 
-	err := client.start()
+	err := client.start(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("start: %w", err)
 	}
@@ -85,20 +79,17 @@ func New(ctx context.Context, c Config) (*Client, error) {
 	return &client, nil
 }
 
-func (c *Client) start() error {
-	c.wg.Go(c.connect)
-	c.wg.Go(c.managePubChannel)
-	c.wg.Go(c.manageConsumeChannel)
+func (c *Client) start(ctx context.Context) error {
+	c.Go(ctx, c.connect)
+	c.Go(ctx, c.managePubChannel)
+	c.Go(ctx, c.manageConsumeChannel)
 
 	return nil
 }
 
 func (c *Client) Close() {
 	c.closeOnce.Do(func() {
-		c.cancel()
-
 		conn := c.getConn()
-
 		c.clearAndCloseConn(conn)
 		c.wg.Wait()
 	})

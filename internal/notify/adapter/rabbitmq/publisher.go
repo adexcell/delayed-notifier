@@ -8,12 +8,12 @@ import (
 	"math"
 	"time"
 
-	"github.com/adexcell/delayed-notifier/internal/notify/domain"
+	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // caller делает retry при получении ошибки.
-func (c *Client) PublishNotify(ctx context.Context, notify domain.Notify) error {
+func (c *Client) PublishNotify(ctx context.Context, notify dto.Delivery) error {
 	c.mu.Lock()
 	pubCh := c.pubCh
 	exchange := c.cfg.DelayedExchange
@@ -30,7 +30,7 @@ func (c *Client) PublishNotify(ctx context.Context, notify domain.Notify) error 
 	}
 
 	delayMs := max(notify.ScheduledAt.UTC().UnixMilli()-time.Now().UTC().UnixMilli(), 0)
-	delayMs = min(math.MaxInt32, delayMs)
+	delayMs = min(math.MaxUint32, delayMs)
 
 	pub := amqp.Publishing{
 		ContentType:  "application/json",
@@ -39,8 +39,8 @@ func (c *Client) PublishNotify(ctx context.Context, notify domain.Notify) error 
 		MessageId:    notify.ID.String(),
 		Timestamp:    time.Now(),
 		Headers: amqp.Table{
-			"x-delay":          int32(delayMs), // плагин ожидает int32
-			"x-retry-count":    int32(notify.RetryCount),
+			"x-delay":          uint32(delayMs), // max 49.7 days
+			"x-retry-count":    uint32(notify.RetryCount),
 			"x-correlation-id": notify.ID.String(),
 		},
 	}

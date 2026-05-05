@@ -11,7 +11,6 @@ type Usecase interface {
 	CreateNotify(ctx context.Context, input dto.CreateNotifyInput) (dto.CreateNotifyOutput, error)
 	GetNotify(ctx context.Context, input dto.GetNotifyInput) (dto.GetNotifyOutput, error)
 	DeleteNotify(ctx context.Context, input dto.DeleteNotifyInput) error
-	UpdateNotify(ctx context.Context, input dto.UpdateNotifyInput) error
 }
 
 type Handler struct {
