@@ -13,6 +13,7 @@ const (
 	defaultMaxRetries = 3
 )
 
+// Notify represents a notification entity in the system.
 type Notify struct {
 	ID             uuid.UUID
 	RecipientEmail string    `validate:"required,email"`
@@ -27,6 +28,7 @@ type Notify struct {
 	UpdatedAt      time.Time
 }
 
+// NewNotify creates a new Notify entity with the given parameters and validates it.
 func NewNotify(
 	email string,
 	subject string,
@@ -45,7 +47,7 @@ func NewNotify(
 		CreatedAt:      time.Now().UTC(),
 	}
 
-	delay := n.ScheduledAt.UnixMilli() - n.CreatedAt.UnixMilli()
+	delay := n.ScheduledAt.UnixMilli() - time.Now().UnixMilli()
 	if delay > math.MaxUint32 {
 		return Notify{}, ErrScheduledTime
 	}

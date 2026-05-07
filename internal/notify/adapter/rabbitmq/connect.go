@@ -26,7 +26,7 @@ func (c *Client) connect(ctx context.Context) {
 			continue
 		}
 
-		log.Info().Msg("[RabbitMQ] Connect successfully.")
+		log.Debug().Msg("[RabbitMQ] Connect successfully.")
 
 		if err := c.initTopology(conn); err != nil {
 			c.clearAndCloseConn(conn)

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// DeleteNotify deletes notify in db if exists, else returns domain.ErrNotFound
+// DeleteNotify removes a notification from the database by its ID.
 func (p *Postgres) DeleteNotify(ctx context.Context, notifyID uuid.UUID) error {
 	const sql = `DELETE FROM notifications WHERE id = $1`
 

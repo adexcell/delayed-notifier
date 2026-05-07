@@ -15,9 +15,9 @@ repos:
       - id: commitizen
         stages: [commit-msg]
         args: [--check, --commit-msg-file]
-  # - repo: https://github.com/golangci/golangci-lint
-  #   rev: v2.6.0
-    # hooks:
-    #   - id: golangci-lint
-    #     stages: [pre-commit] 
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v2.6.0
+    hooks:
+      - id: golangci-lint
+        stages: [pre-commit] 
 

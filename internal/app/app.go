@@ -19,6 +19,7 @@ import (
 	kafkav2 "github.com/wb-go/wbf/kafka/kafka-v2"
 )
 
+// Dependencies holds all the external components and controllers required by the application.
 type Dependencies struct {
 	// Adapters
 	Postgres      *postgres.Pool
@@ -33,39 +34,41 @@ type Dependencies struct {
 	Metrics *metrics.HTTPServer
 }
 
-func Run(ctx context.Context, c config.Config) (err error) {
+// Run initializes and starts the application, handling its lifecycle.
+func Run(ctx context.Context, cfg config.Config) (err error) {
 	var deps Dependencies
 
 	// ---------Adapters---------
-	deps.Postgres, err = postgres.New(ctx, c.Postgres)
+	deps.Postgres, err = postgres.New(ctx, cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("pgxdriver.New: %w", err)
 	}
 
-	deps.Redis, err = redis.New(ctx, c.Redis)
+	deps.Redis, err = redis.New(ctx, cfg.Redis)
 	if err != nil {
 		return fmt.Errorf("redis.New: %w", err)
 	}
 
-	deps.RabbitMQ, err = rabbitmq.New(ctx, c.RabbitMQ)
+	deps.RabbitMQ, err = rabbitmq.New(ctx, cfg.RabbitMQ)
 	if err != nil {
 		return fmt.Errorf("rabbitmq.New: %w", err)
 	}
 
 	// ---------Controllers---------
-	deps.RouterHTTP = ginext.New(c.Router)
+	deps.RouterHTTP = ginext.New(cfg.Router)
 
 	// ---------Metrics---------
 	deps.Metrics = metrics.NewHTTPServer()
 
 	// ---------Domains---------
-	notify, err := NewNotifyDomain(ctx, deps, c)
+	notify, err := NewNotifyDomain(deps, cfg)
 	if err != nil {
 		return fmt.Errorf("NotifyDomain(deps): %w", err)
 	}
+	notify.Start(ctx)
 
 	// ---------Start http server---------
-	httpserver := httpserver.New(deps.RouterHTTP, c.HTTP)
+	httpserver := httpserver.New(deps.RouterHTTP, cfg.HTTP)
 	log.Info().Msg("App started!")
 
 	sig := make(chan os.Signal, 1)

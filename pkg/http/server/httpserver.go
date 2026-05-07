@@ -10,15 +10,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Config holds the configuration parameters for the HTTP server.
 type Config struct {
 	Host string `default:"localhost" envconfig:"HTTP_HOST"`
 	Port string `default:"8080"      envconfig:"HTTP_PORT"`
 }
 
+// Server wraps the standard http.Server to provide custom startup and shutdown logic.
 type Server struct {
 	server *http.Server
 }
 
+// New creates and starts a new HTTP server with the provided handler and configuration.
 func New(handler http.Handler, c Config) *Server {
 	httpServer := &http.Server{
 		Handler:      handler,
@@ -45,6 +48,7 @@ func (s *Server) start() {
 	}
 }
 
+// Close gracefully shuts down the HTTP server with a timeout.
 func (s *Server) Close() {
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()

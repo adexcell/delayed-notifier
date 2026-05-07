@@ -3,19 +3,18 @@ package v1
 import (
 	"net/http"
 
-	"github.com/wb-go/wbf/ginext"
-
 	"github.com/adexcell/delayed-notifier/internal/notify/controller/http_router/response"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
+	"github.com/wb-go/wbf/ginext"
 )
 
-// GetNotify handles the GET request to retrieve a specific notification.
-func (h *Handler) GetNotify(c *ginext.Context) {
+// GetNotifyStatus handles the GET request to retrieve the status of a specific notification.
+func (h *Handler) GetNotifyStatus(c *ginext.Context) {
 	input := dto.GetStatusInput{
 		ID: c.Param("id"),
 	}
 
-	output, err := h.usecase.GetNotify(c.Request.Context(), input)
+	output, err := h.usecase.GetStatus(c.Request.Context(), input)
 	if err != nil {
 		response.InternalServerError(c, err.Error())
 		return

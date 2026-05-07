@@ -7,7 +7,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// Caller must call Consume again when returned deliveries channel is closed.
+// Consume starts consuming messages from the main notification queue.
+// The caller must handle reconnection if the returned channel is closed.
 func (c *Client) Consume(ctx context.Context) (<-chan amqp.Delivery, error) {
 	c.mu.Lock()
 	subCh := c.subCh

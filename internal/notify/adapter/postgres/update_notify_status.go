@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// UpdateNotifyStatus updates the status of a notification in the database.
 func (p *Postgres) UpdateNotifyStatus(ctx context.Context, notifyID uuid.UUID, status string) error {
 	const sql = `UPDATE notifications SET status = $1 WHERE id = $2`
 

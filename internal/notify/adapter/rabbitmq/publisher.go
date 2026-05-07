@@ -12,7 +12,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// caller делает retry при получении ошибки.
+// PublishNotify publishes a notification message to the RabbitMQ exchange with a delay.
 func (c *Client) PublishNotify(ctx context.Context, notify dto.Delivery) error {
 	c.mu.Lock()
 	pubCh := c.pubCh
@@ -37,10 +37,10 @@ func (c *Client) PublishNotify(ctx context.Context, notify dto.Delivery) error {
 		DeliveryMode: amqp.Persistent,
 		Body:         body,
 		MessageId:    notify.ID.String(),
-		Timestamp:    time.Now(),
+		Timestamp:    time.Now().UTC(),
 		Headers: amqp.Table{
-			"x-delay":          uint32(delayMs), // max 49.7 days
-			"x-retry-count":    uint32(notify.RetryCount),
+			"x-delay":          delayMs, // max 49.7 days
+			"x-retry-count":    notify.RetryCount,
 			"x-correlation-id": notify.ID.String(),
 		},
 	}

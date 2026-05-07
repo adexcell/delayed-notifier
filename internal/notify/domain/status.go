@@ -1,16 +1,24 @@
 package domain
 
+// Status represents the current state of a notification.
 type Status int
 
 const (
+	// StatusUnknown represents an undefined notification status.
 	StatusUnknown Status = iota
+	// StatusPending indicates the notification is waiting to be processed.
 	StatusPending
+	// StatusProcessing indicates the notification is currently being handled.
 	StatusProcessing
+	// StatusSent indicates the notification has been successfully delivered.
 	StatusSent
+	// StatusFailed indicates the notification delivery has failed.
 	StatusFailed
+	// StatusCancelled indicates the notification has been cancelled.
 	StatusCancelled
 )
 
+// NewStatus converts a string representation to a Status type.
 func NewStatus(s string) Status {
 	switch s {
 	case "pending":
@@ -28,6 +36,8 @@ func NewStatus(s string) Status {
 	}
 }
 
+// String returns the string representation of the Status.
+//
 //nolint:exhaustive
 func (s Status) String() string {
 	switch s {

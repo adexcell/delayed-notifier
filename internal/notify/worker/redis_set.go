@@ -9,10 +9,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Redis defines the interface for setting notification status in the cache.
 type Redis interface {
 	SetNotifyStatus(ctx context.Context, key, value string) error
 }
 
+// AsyncRedisWriter handles asynchronous updates to the notification status cache.
 type AsyncRedisWriter struct {
 	redis         Redis
 	ch            chan domain.NotifyStatusTask
@@ -20,6 +22,7 @@ type AsyncRedisWriter struct {
 	draintTimeout time.Duration
 }
 
+// NewAsyncRedisWriter creates a new instance of AsyncRedisWriter.
 func NewAsyncRedisWriter(redis Redis) *AsyncRedisWriter {
 	return &AsyncRedisWriter{
 		redis:         redis,
@@ -28,11 +31,13 @@ func NewAsyncRedisWriter(redis Redis) *AsyncRedisWriter {
 	}
 }
 
+// Start begins the background worker for processing the Redis update queue.
 func (w *AsyncRedisWriter) Start(ctx context.Context) {
 	w.wg.Add(1)
 	go w.worker(ctx)
 }
 
+// Send queues a status update task to be processed asynchronously.
 func (w *AsyncRedisWriter) Send(ctx context.Context, task domain.NotifyStatusTask) {
 	select {
 	case <-ctx.Done():
@@ -42,6 +47,7 @@ func (w *AsyncRedisWriter) Send(ctx context.Context, task domain.NotifyStatusTas
 	}
 }
 
+// Stop gracefully shuts down the writer by closing the queue and waiting for workers to finish.
 func (w *AsyncRedisWriter) Stop() {
 	close(w.ch)
 	w.wg.Wait()

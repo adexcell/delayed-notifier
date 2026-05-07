@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// GetNotifyStatusByID retrieves the status of a notification from the database by its ID.
 func (p *Postgres) GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Status, error) {
 	const sql = `SELECT status FROM notifications WHERE id = $1`
 

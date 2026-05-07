@@ -11,6 +11,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// Config holds the configuration parameters for the RabbitMQ client.
 type Config struct {
 	User     string `default:"" envconfig:"RABBIT_USER"`
 	Password string `default:"" envconfig:"RABBIT_PASSWORD"`
@@ -26,10 +27,7 @@ type Config struct {
 	DLQRoutingKey string `default:"notify.dead" envconfig:"RABBIT_DLQ_ROUTING_KEY"`
 }
 
-// Client is the base struct for handling connection recovery, consumption and
-// publishing. Note that this struct has an internal mutex to safeguard against
-// data races. As you develop and iterate over this example, you may need to add
-// further locks, or safeguards, to keep your application safe from data races.
+// Client handles RabbitMQ connections, publishing, and consumption with automatic recovery.
 type Client struct {
 	addr      string
 	wg        *sync.WaitGroup
@@ -54,8 +52,7 @@ var (
 	errMsgNacked    = errors.New("message was nack'ed by broker")
 )
 
-// New creates a new broker state instance, and automatically
-// attempts to connect to the server.
+// New creates a new RabbitMQ client instance and starts connection management.
 func New(ctx context.Context, c Config) (*Client, error) {
 	addr := fmt.Sprintf("amqp://%s:%s@%s:%d",
 		url.QueryEscape(c.User),
@@ -67,7 +64,7 @@ func New(ctx context.Context, c Config) (*Client, error) {
 	client := Client{
 		addr:   addr,
 		mu:     sync.Mutex{},
-
+		wg:     new(sync.WaitGroup),
 		cfg:    c,
 	}
 
@@ -87,6 +84,7 @@ func (c *Client) start(ctx context.Context) error {
 	return nil
 }
 
+// Close gracefully shuts down the RabbitMQ client and closes all connections.
 func (c *Client) Close() {
 	c.closeOnce.Do(func() {
 		conn := c.getConn()

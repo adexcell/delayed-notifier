@@ -12,12 +12,14 @@ import (
 	"github.com/adexcell/delayed-notifier/pkg/retry"
 )
 
+// RabbitPublisher defines the interface for publishing notifications to RabbitMQ.
 type RabbitPublisher interface {
 	PublishNotify(ctx context.Context, delivery dto.Delivery) error
 }
 
 
 
+// AsyncRabbitPublisher handles asynchronous publishing of notifications to RabbitMQ with retry logic.
 type AsyncRabbitPublisher struct {
 	rabbit        *rabbitmq.Client
 	pubCh         chan dto.Delivery
@@ -26,6 +28,7 @@ type AsyncRabbitPublisher struct {
 	draintTimeout time.Duration
 }
 
+// NewAsyncRabbitPublisher creates a new instance of AsyncRabbitPublisher.
 func NewAsyncRabbitPublisher(rabbit *rabbitmq.Client, retryConfig retry.Config) *AsyncRabbitPublisher {
 	return &AsyncRabbitPublisher{
 		rabbit:        rabbit,
@@ -35,20 +38,24 @@ func NewAsyncRabbitPublisher(rabbit *rabbitmq.Client, retryConfig retry.Config) 
 	}
 }
 
+// Start begins the background worker for processing the publishing queue.
 func (w *AsyncRabbitPublisher) Start(ctx context.Context) {
 	w.wg.Add(1)
 	go w.worker(ctx)
+	log.Debug().Msg("[AsyncRabbitPublisher] worker start")
 }
 
+// Send queues a notification delivery to be published asynchronously.
 func (w *AsyncRabbitPublisher) Send(ctx context.Context, delivery dto.Delivery) {
 	select {
 	case <-ctx.Done():
-		log.Error().Err(ctx.Err()).Msg("AsyncRabbitWriter.Send cancelled with context.Done()")
+		log.Error().Err(ctx.Err()).Msg("[AsyncRabbitPublisher] Send cancelled with context.Done()")
 		return
 	case w.pubCh <- delivery:
 	}
 }
 
+// Stop gracefully shuts down the publisher by closing the queue and waiting for workers to finish.
 func (w *AsyncRabbitPublisher) Stop() {
 	close(w.pubCh)
 	w.wg.Wait()
@@ -72,9 +79,14 @@ func (w *AsyncRabbitPublisher) worker(ctx context.Context) {
 
 func (w *AsyncRabbitPublisher) handleTaskWithRetry(ctx context.Context, delivery dto.Delivery) {
 
-	retry.DoWithContext(ctx, w.retryStrategy, func() error {
+	err := retry.DoWithContext(ctx, w.retryStrategy, func() error {
 		return w.rabbit.PublishNotify(ctx, delivery)
 	})
+
+	if err != nil {
+		log.Warn().Err(err).Msg("[AsyncRabbitPublisher] failed to handleTask")
+	}
+	log.Debug().Msg("[AsyncRabbitPublisher] success to handleTask")
 }
 
 func (w *AsyncRabbitPublisher) drainRemaining(ctx context.Context) {

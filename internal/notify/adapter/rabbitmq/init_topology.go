@@ -54,7 +54,7 @@ func (c *Client) initTopology(conn *amqp.Connection) error {
 		return fmt.Errorf("bind main queue: %w", err)
 	}
 
-	log.Info().Msg("RabbitMQ topology declared successfully")
+	log.Debug().Msg("[RabbitMQ] topology declared successfully")
 
 	return nil
 }

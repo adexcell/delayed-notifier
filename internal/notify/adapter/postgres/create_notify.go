@@ -7,6 +7,7 @@ import (
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 )
 
+// CreateNotify inserts a new notification into the database.
 func (p *Postgres) CreateNotify(ctx context.Context, n domain.Notify) error {
 	const sql = `INSERT INTO notifications(id, recipient_email, subject, body, scheduled_at)
 				   VALUES($1, $2, $3, $4, $5)`

@@ -9,29 +9,36 @@ import (
 
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
+	"github.com/adexcell/delayed-notifier/internal/notify/metrics"
+	"github.com/adexcell/delayed-notifier/pkg/otel/tracer"
 	"github.com/adexcell/delayed-notifier/pkg/retry"
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
 )
 
+// RabbitConsumer defines the interface for consuming messages from RabbitMQ.
 type RabbitConsumer interface {
 	Consume(ctx context.Context) (<-chan amqp.Delivery, error)
 }
 
+// AsyncRabbitWriter defines the interface for asynchronously writing messages back to RabbitMQ.
 type AsyncRabbitWriter interface {
 	Send(ctx context.Context, delivery dto.Delivery)
 }
 
+// EmailSender defines the interface for sending email notifications.
 type EmailSender interface {
 	Send(ctx context.Context, n domain.Notify) error
 }
 
+// Postgres defines the subset of PostgreSQL operations required by the worker.
 type Postgres interface {
 	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Status, error)
 	UpdateNotifyStatus(ctx context.Context, notifyID uuid.UUID, status string) error
 }
 
+// AsyncRabbitConsumer is a worker that consumes notifications from RabbitMQ and sends them.
 type AsyncRabbitConsumer struct {
 	rabbit        RabbitConsumer
 	rabbitWriter  AsyncRabbitWriter
@@ -45,6 +52,7 @@ type AsyncRabbitConsumer struct {
 	jobsCh        chan amqp.Delivery
 }
 
+// NewAsyncRabbitConsumer creates a new instance of AsyncRabbitConsumer.
 func NewAsyncRabbitConsumer(
 	rabbit RabbitConsumer,
 	rabbitWriter AsyncRabbitWriter,
@@ -64,6 +72,7 @@ func NewAsyncRabbitConsumer(
 	}
 }
 
+// Start begins the worker pool and dispatcher to handle notifications.
 func (w *AsyncRabbitConsumer) Start(ctx context.Context) {
 	// Запускаем воркеры
 	for i := 0; i < w.workerCount; i++ {
@@ -74,8 +83,10 @@ func (w *AsyncRabbitConsumer) Start(ctx context.Context) {
 	// Запускаем диспетчер, который читает из RabbitMQ и раздает задачи
 	w.wg.Add(1)
 	go w.dispatcher(ctx)
+	log.Debug().Msg("[AsyncRabbitConsumer] worker start")
 }
 
+// Stop gracefully shuts down the worker by waiting for all tasks to complete.
 func (w *AsyncRabbitConsumer) Stop() {
 	w.wg.Wait()
 }
@@ -134,6 +145,9 @@ func (w *AsyncRabbitConsumer) dispatcher(ctx context.Context) {
 }
 
 func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Delivery) {
+	ctx, span := tracer.Start(ctx, "worker handleDelivery")
+	defer span.End()
+
 	var delivery dto.Delivery
 
 	err := json.Unmarshal(d.Body, &delivery)
@@ -147,21 +161,22 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 	}
 
 	notify := delivery.ToDomain()
+	log.Debug().Msg("[AsyncRabbitConsumer] consumed message from rabbit")
 
 	status, err := w.postgres.GetNotifyStatusByID(ctx, notify.ID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			log.Warn().Err(err).Msg("[rabbit-consumer]")
+			log.Warn().Err(err).Msg("[AsyncRabbitConsumer] notify not found in postgres, ack and skip")
 			err = d.Ack(false)
 			if err != nil {
 				log.Debug().Err(err).Msg("[rabbit] ack failed")
 			}
 			return
 		}
-		log.Error().Err(err).Msg("[rabbit-consumer] postgres.GetNotifyStatusByID")
+		log.Error().Err(err).Msg("[AsyncRabbitConsumer] postgres.GetNotifyStatusByID")
 		err = d.Ack(false)
 		if err != nil {
-			log.Debug().Err(err).Msg("[rabbit] ack failed")
+			log.Debug().Err(err).Msg("[AsyncRabbitConsumer] ack failed")
 		}
 		return
 	}
@@ -169,14 +184,14 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 	if status == domain.StatusCancelled {
 		err = d.Ack(false)
 		if err != nil {
-			log.Debug().Err(err).Msg("[rabbit] ack failed")
+			log.Debug().Err(err).Msg("[AsyncRabbitConsumer] ack failed")
 		}
 		return
 	}
 
 	err = w.postgres.UpdateNotifyStatus(ctx, notify.ID, domain.StatusProcessing.String())
 	if err != nil {
-		log.Error().Err(err).Msg("update status to processing")
+		log.Error().Err(err).Msg("[AsyncRabbitConsumer] update status to processing")
 		return
 	}
 
@@ -185,6 +200,7 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 	if err == nil {
 		w.postgres.UpdateNotifyStatus(ctx, notify.ID, domain.StatusSent.String())
 		log.Info().Str("id", notify.ID.String()).Msg("notification sent successfully")
+		metrics.NotificationsProcessedTotal.Inc()
 		err = d.Ack(false)
 		if err != nil {
 			log.Debug().Err(err).Msg("[rabbit] ack failed")
@@ -192,7 +208,10 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 		return
 	}
 
+	log.Error().Err(err).Str("id", notify.ID.String()).Msg("[AsyncRabbitConsumer] failed to send")
+
 	// Failed
+	metrics.NotificationsFailedTotal.Inc()
 	notify.RetryCount++
 	errMsg := err.Error()
 	notify.LastError = &errMsg
@@ -217,6 +236,7 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 		}
 }
 
+// CalculateExponentialDelay computes the delay for the next retry attempt using exponential backoff.
 func CalculateExponentialDelay(retryCount int) time.Duration {
 	base := 5 * time.Second
 	maxDelay := 1 * time.Hour

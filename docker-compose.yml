@@ -1,16 +1,52 @@
-version: '3'
 
 services:
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - '8080:8080'
-#    depends_on:
-#      - redis
-#      - postgres
-#      - tempo
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    ports:
+      - '8080:8080'
+    restart: on-failure
+    # environment:
+      # POSTGRES_HOST: postgres
+      # POSTGRES_PORT: 5432
+      # POSTGRES_USER: login
+      # POSTGRES_PASSWORD: pass
+      # POSTGRES_DB_NAME: postgres
+      # REDIS_ADDR: "redis:6379"
+      # RABBIT_HOST: rabbitmq
+      # RABBIT_PORT: 5672
+      # RABBIT_USER: guest
+      # RABBIT_PASSWORD: guest
+      # OTEL_ENDPOINT: "tempo:4317"
+      # OTEL_NAMESPACE: "delayed-notifier"
+      # APP_NAME: "delayed-notifier"
+      # APP_VERSION: "v1.0.0"
+      # GIN_MODE: "release"
+      # HTTP_HOST: ""
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      tempo:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  migrator:
+    image: migrate/migrate:v4.15.2
+    container_name: migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - "migrate"
+      - "-path=/app/migrations"
+      - "-database=postgres://login:pass@postgres:5432/postgres?sslmode=disable"
+    volumes:
+      - ./migrations:/app/migrations
 
   postgres:
     image: postgres
@@ -20,6 +56,11 @@ services:
       POSTGRES_DB: 'postgres'
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U login -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -47,8 +88,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
 
   kafka:
     image: confluentinc/cp-kafka:latest

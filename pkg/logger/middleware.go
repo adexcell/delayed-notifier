@@ -5,6 +5,7 @@ import (
 	"github.com/wb-go/wbf/ginext"
 )
 
+// Middleware returns a Gin middleware that logs HTTP requests.
 func Middleware() ginext.HandlerFunc {
 	return func(c *ginext.Context) {
 		c.Next()

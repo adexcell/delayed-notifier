@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Delayed Notifier API
+  version: 1.0.0
+  description: API for scheduling and managing delayed email notifications.
+paths:
+  /api/v1/notifies:
+    post:
+      summary: Create a delayed notification
+      operationId: createNotify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotifyInput'
+      responses:
+        '201':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateNotifyOutput'
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+  /api/v1/notifies/{id}:
+    get:
+      summary: Get notification status
+      operationId: getNotifyStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNotifyOutput'
+        '400':
+          description: Invalid ID format
+        '404':
+          description: Notification not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Cancel a scheduled notification
+      operationId: deleteNotify
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Notification cancelled
+        '400':
+          description: Invalid ID format
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    CreateNotifyInput:
+      type: object
+      required:
+        - recipient_email
+        - subject
+        - body
+        - scheduled_at
+      properties:
+        recipient_email:
+          type: string
+          format: email
+        subject:
+          type: string
+          maxLength: 255
+        body:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+    CreateNotifyOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    GetNotifyOutput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, sent, cancelled]

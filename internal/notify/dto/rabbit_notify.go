@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Delivery represents the data structure for notification delivery via RabbitMQ.
 type Delivery struct {
 	ID             uuid.UUID `json:"id"`
 	RecipientEmail string    `json:"recipient_email"`
@@ -18,6 +19,7 @@ type Delivery struct {
 	LastError      *string   `json:"last_error,omitempty"`
 }
 
+// ToDomain converts a Delivery DTO to a domain Notify model.
 func (d Delivery) ToDomain() domain.Notify {
 	return domain.Notify{
 		ID:             d.ID,
@@ -30,6 +32,7 @@ func (d Delivery) ToDomain() domain.Notify {
 	}
 }
 
+// ToDelivery converts a domain Notify model to a Delivery DTO.
 func ToDelivery(n domain.Notify) Delivery {
 	return Delivery{
 		ID:             n.ID,

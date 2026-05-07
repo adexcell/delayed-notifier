@@ -6,9 +6,11 @@ import (
 
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
+	"github.com/adexcell/delayed-notifier/internal/notify/metrics"
 	"github.com/adexcell/delayed-notifier/pkg/otel/tracer"
 )
 
+// CreateNotify creates a new notification and schedules its delivery via RabbitMQ.
 func (u *NotifyUsecase) CreateNotify(ctx context.Context, input dto.CreateNotifyInput) (dto.CreateNotifyOutput, error) {
 	ctx, span := tracer.Start(ctx, "notify usecase CreateNotify")
 	defer span.End()
@@ -29,6 +31,7 @@ func (u *NotifyUsecase) CreateNotify(ctx context.Context, input dto.CreateNotify
 	u.asyncRabbitWriter.Send(ctx, delivery)
 
 	output.ID = notify.ID
+	metrics.NotificationsCreatedTotal.Inc()
 
 	return output, nil
 }

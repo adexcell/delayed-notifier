@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Явная карта сообщений: struct field -> tag -> custom message.
+// customMessages maps struct fields and validator tags to custom error messages.
 var customMessages = map[string]map[string]string{
 	"Channel": {"oneof": "Укажите email или telegram"},
 	"Subject": {
@@ -17,7 +17,7 @@ var customMessages = map[string]map[string]string{
 	"ScheduledAt": {"gt": "Дата должна быть в будущем"},
 }
 
-// ExtractErrors преобразует валидационные ошибки в map[field]message.
+// ExtractErrors converts validation errors into a map of field names to error messages.
 func ExtractErrors(errs validator.ValidationErrors) map[string]string {
 	out := make(map[string]string, len(errs))
 
@@ -41,7 +41,7 @@ func ExtractErrors(errs validator.ValidationErrors) map[string]string {
 	return out
 }
 
-// fallbackMessage создаёт адекватное сообщение, если для тега нет кастомного.
+// fallbackMessage generates a default error message if no custom message is found for a tag.
 func fallbackMessage(e validator.FieldError) string {
 	param := e.Param() // Значение из тега (например, "3" для min=3)
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/adexcell/delayed-notifier/internal/notify/adapter/mailer"
 	"github.com/adexcell/delayed-notifier/internal/notify/adapter/rabbitmq"
@@ -15,11 +16,13 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// App holds basic application metadata.
 type App struct {
 	Name    string `envconfig:"APP_NAME"    required:"true"`
 	Version string `envconfig:"APP_VERSION" required:"true"`
 }
 
+// Config represents the complete application configuration.
 type Config struct {
 	App           App
 	HTTP          httpserver.Config
@@ -33,12 +36,13 @@ type Config struct {
 	SMTP          mailer.Config
 }
 
+// New loads the configuration from environment variables and .env file.
 func New() (Config, error) {
 	var config Config
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		return config, fmt.Errorf("godotenv.Load: %w", err)
+		log.Printf("warning: .env not loaded: %v", err)
 	}
 
 	err = envconfig.Process("", &config)

@@ -1,13 +1,34 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/adexcell/delayed-notifier/internal/notify/domain"
 )
 
+// GetNotifyInput represents the input data required to retrieve a specific notification.
 type GetNotifyInput struct {
 	ID string `binding:"required" json:"id"`
 }
 
+// GetNotifyOutput represents the detailed information of a notification.
 type GetNotifyOutput struct {
-	Status domain.Status `json:"status"`
+	RecipientEmail string        `json:"recipient_email"`
+	Subject        string        `json:"subject"`
+	Body           string        `json:"body"`
+	ScheduledAt    time.Time     `json:"scheduled_at"`
+	CreatedAt      time.Time     `json:"created_at"`
+	Status         domain.Status `json:"status"`
+}
+
+// ToDto converts a domain Notify model to GetNotifyOutput DTO.
+func ToDto(n domain.Notify) GetNotifyOutput {
+	return GetNotifyOutput{
+		RecipientEmail: n.RecipientEmail,
+		Subject:        n.Subject,
+		Body:           n.Body,
+		ScheduledAt:    n.ScheduledAt,
+		CreatedAt:      n.CreatedAt,
+		Status:         n.Status,
+	}
 }

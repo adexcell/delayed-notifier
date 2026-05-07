@@ -11,7 +11,7 @@ import (
 	"github.com/wb-go/wbf/ginext"
 )
 
-// CreateNotify POST /notify — создание уведомлений с датой и временем отправки.
+// CreateNotify handles the POST request to create a new notification.
 func (h *Handler) CreateNotify(c *ginext.Context) {
 	input := dto.CreateNotifyInput{}
 
@@ -25,13 +25,13 @@ func (h *Handler) CreateNotify(c *ginext.Context) {
 			return
 		}
 
-		response.BadRequest(c, err)
+		response.BadRequest(c, err.Error())
 		return
 	}
 
 	output, err := h.usecase.CreateNotify(c.Request.Context(), input)
 	if err != nil {
-		response.InternalServerError(c, err)
+		response.InternalServerError(c, err.Error())
 		return
 	}
 

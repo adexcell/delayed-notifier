@@ -54,26 +54,15 @@ logs:
 
 .PHONY: restart
 restart:
-	$(COMPOSE) restart $(APP_NAME)
+	$(COMPOSE) restart app
 
-migrate-install:
-	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.18.1
-
-migrate-create:
-	@read -p "Name:" name; \
-	migrate create -ext sql -dir "$(MIGRATE_PATH)" $$name
-
+.PHONY: migrate-up
 migrate-up:
-	migrate -database "$(DB_MIGRATE_URL)" -path "$(MIGRATE_PATH)" up
+	$(COMPOSE) run --rm migrator up
 
+.PHONY: migrate-down
 migrate-down:
-	migrate -database "$(DB_MIGRATE_URL)" -path "$(MIGRATE_PATH)" down -all
-
-generate:
-	go generate ./...
-
-mockery-install:
-	go install github.com/vektra/mockery/v3@v3.2.5
+	$(COMPOSE) run --rm migrator down 1
 
 .PHONY: tidy
 tidy:
@@ -90,11 +79,11 @@ test:
 .PHONY: build
 build:
 	mkdir -p bin
-	CGO_ENABLED=0 $(GO) build -o bin/$(APP_NAME) $(APP_PKG)
+	CGO_ENABLED=0 $(GO) build -o bin/delayedNotifier $(APP_PKG)
 
 .PHONY: docker-build
 docker-build:
-	$(COMPOSE) build $(APP_NAME)
+	$(COMPOSE) build app
 
 .PHONY: lint
 lint:
@@ -107,6 +96,3 @@ lint-fix:
 .PHONY: fmt-ci
 fmt-ci:
 	$(GOLANGCI_LINT) fmt ./...
-
-oapi-install:
-	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
