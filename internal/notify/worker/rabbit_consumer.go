@@ -35,7 +35,7 @@ type EmailSender interface {
 // Postgres defines the subset of PostgreSQL operations required by the worker.
 type Postgres interface {
 	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Status, error)
-	UpdateNotifyStatus(ctx context.Context, notifyID uuid.UUID, status string) error
+	UpdateNotify(ctx context.Context, notify domain.Notify) error
 }
 
 // AsyncRabbitConsumer is a worker that consumes notifications from RabbitMQ and sends them.
@@ -189,7 +189,9 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 		return
 	}
 
-	err = w.postgres.UpdateNotifyStatus(ctx, notify.ID, domain.StatusProcessing.String())
+	notify.Status = status
+
+	err = w.postgres.UpdateNotify(ctx, notify)
 	if err != nil {
 		log.Error().Err(err).Msg("[AsyncRabbitConsumer] update status to processing")
 		return
@@ -198,7 +200,10 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 	err = w.sender.Send(ctx, notify)
 	// Success
 	if err == nil {
-		w.postgres.UpdateNotifyStatus(ctx, notify.ID, domain.StatusSent.String())
+		err := w.postgres.UpdateNotify(ctx, notify)
+		if err != nil {
+			log.Error().Err(err).Msg("postgres.UpdateNotify")
+		}
 		log.Info().Str("id", notify.ID.String()).Msg("notification sent successfully")
 		metrics.NotificationsProcessedTotal.Inc()
 		err = d.Ack(false)
@@ -225,7 +230,10 @@ func (w *AsyncRabbitConsumer) handleDelivery(ctx context.Context, d amqp.Deliver
 
 		nextDelay := CalculateExponentialDelay(notify.RetryCount)
 		notify.ScheduledAt = notify.ScheduledAt.Add(nextDelay)
-		w.postgres.UpdateNotifyStatus(ctx, notify.ID, domain.StatusPending.String())
+		err := w.postgres.UpdateNotify(ctx, notify)
+		if err != nil {
+			log.Error().Err(err).Msg("postgres.UpdateNotify")
+		}
 		delivery = dto.ToDelivery(notify)
 		w.rabbitWriter.Send(ctx, delivery)
 	}

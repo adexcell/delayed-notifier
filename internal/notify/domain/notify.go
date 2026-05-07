@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultMaxRetries = 3
+	defaultMaxRetries = 10
 )
 
 // Notify represents a notification entity in the system.
@@ -29,22 +29,17 @@ type Notify struct {
 }
 
 // NewNotify creates a new Notify entity with the given parameters and validates it.
-func NewNotify(
-	email string,
-	subject string,
-	body string,
-	scheduledAt time.Time,
-) (Notify, error) {
+func NewNotify(email, subject, body string, scheduledAt time.Time) (Notify, error) {
 	n := Notify{
 		ID:             uuid.New(),
 		RecipientEmail: email,
 		Subject:        subject,
 		Body:           body,
-		ScheduledAt:    scheduledAt.UTC(),
+		ScheduledAt:    scheduledAt,
 		Status:         StatusPending,
 		RetryCount:     0,
 		MaxRetries:     defaultMaxRetries,
-		CreatedAt:      time.Now().UTC(),
+		CreatedAt:      time.Now(),
 	}
 
 	delay := n.ScheduledAt.UnixMilli() - time.Now().UnixMilli()
