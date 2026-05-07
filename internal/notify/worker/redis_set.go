@@ -12,6 +12,7 @@ import (
 // Redis defines the interface for setting notification status in the cache.
 type Redis interface {
 	SetNotifyStatus(ctx context.Context, key, value string) error
+	Del(ctx context.Context, key string) error
 }
 
 // AsyncRedisWriter handles asynchronous updates to the notification status cache.
@@ -73,10 +74,21 @@ func (w *AsyncRedisWriter) handleTask(ctx context.Context, task domain.NotifySta
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	err := w.redis.SetNotifyStatus(ctx, task.Key, task.Value)
-	if err != nil {
-		log.Warn().Err(err).Str("id", task.Key).Msg("[async-redis-writer] failed to set")
+	var err error
+
+	switch task.Op {
+	case domain.OpSet:
+		err = w.redis.SetNotifyStatus(ctx, task.Key, task.Value)
+		if err != nil {
+			log.Debug().Err(err).Str("id", task.Key).Msg("[async-redis-writer] failed to set")
+		}
+	case domain.OpDel:
+		err = w.redis.Del(ctx, task.Key)
+		if err != nil {
+			log.Debug().Err(err).Str("id", task.Key).Msg("[async-redis-writer] failed to delete")
+		}
 	}
+
 }
 
 func (w *AsyncRedisWriter) drainRemaining(ctx context.Context) {

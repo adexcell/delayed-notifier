@@ -12,7 +12,8 @@ import (
 
 // GetNotifyByID retrieves a notification from the database by its ID.
 func (p *Postgres) GetNotifyByID(ctx context.Context, notifyID uuid.UUID) (domain.Notify, error) {
-	const sql = `SELECT id, recipient_email, subject, body, scheduled_at, status, created_at 
+	const sql = `SELECT id, recipient_email, subject, body, 
+				 scheduled_at, status, retry_count, last_error, created_at, updated_at
 				 FROM notifications WHERE id = $1`
 
 	var notify domain.Notify
@@ -25,7 +26,10 @@ func (p *Postgres) GetNotifyByID(ctx context.Context, notifyID uuid.UUID) (domai
 		&notify.Body,
 		&notify.ScheduledAt,
 		&status,
+		&notify.RetryCount,
+		&notify.LastError,
 		&notify.CreatedAt,
+		&notify.UpdatedAt,
 	}
 
 	err := p.pgpool.QueryRow(ctx, sql, notifyID).Scan(dest...)

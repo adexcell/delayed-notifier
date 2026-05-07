@@ -17,6 +17,7 @@ type MockPostgres struct {
 	CreateNotifyFunc        func(ctx context.Context, notify domain.Notify) error
 	GetNotifyStatusByIDFunc func(ctx context.Context, notifyID uuid.UUID) (domain.Status, error)
 	GetNotifyByIDFunc       func(ctx context.Context, notifyID uuid.UUID) (domain.Notify, error)
+	UpdateNotifyFunc        func(ctx context.Context, notify domain.Notify) error
 	DeleteNotifyFunc        func(ctx context.Context, notifyID uuid.UUID) error
 }
 
@@ -39,6 +40,13 @@ func (m *MockPostgres) GetNotifyByID(ctx context.Context, notifyID uuid.UUID) (d
 		return m.GetNotifyByIDFunc(ctx, notifyID)
 	}
 	return domain.Notify{}, nil
+}
+
+func (m *MockPostgres) UpdateNotify(ctx context.Context, notify domain.Notify) error {
+	if m.UpdateNotifyFunc != nil {
+		return m.UpdateNotifyFunc(ctx, notify)
+	}
+	return nil
 }
 
 func (m *MockPostgres) DeleteNotify(ctx context.Context, notifyID uuid.UUID) error {

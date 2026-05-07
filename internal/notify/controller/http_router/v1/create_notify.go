@@ -8,6 +8,7 @@ import (
 	"github.com/adexcell/delayed-notifier/internal/notify/domain/validation"
 	"github.com/adexcell/delayed-notifier/internal/notify/dto"
 	"github.com/go-playground/validator/v10"
+	"github.com/rs/zerolog/log"
 	"github.com/wb-go/wbf/ginext"
 )
 
@@ -28,6 +29,8 @@ func (h *Handler) CreateNotify(c *ginext.Context) {
 		response.BadRequest(c, err.Error())
 		return
 	}
+
+	log.Debug().Time("scheduled_at", input.ScheduledAt).Msg("Input notify")
 
 	output, err := h.usecase.CreateNotify(c.Request.Context(), input)
 	if err != nil {

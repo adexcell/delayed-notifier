@@ -8,23 +8,6 @@ services:
     ports:
       - '8080:8080'
     restart: on-failure
-    # environment:
-      # POSTGRES_HOST: postgres
-      # POSTGRES_PORT: 5432
-      # POSTGRES_USER: login
-      # POSTGRES_PASSWORD: pass
-      # POSTGRES_DB_NAME: postgres
-      # REDIS_ADDR: "redis:6379"
-      # RABBIT_HOST: rabbitmq
-      # RABBIT_PORT: 5672
-      # RABBIT_USER: guest
-      # RABBIT_PASSWORD: guest
-      # OTEL_ENDPOINT: "tempo:4317"
-      # OTEL_NAMESPACE: "delayed-notifier"
-      # APP_NAME: "delayed-notifier"
-      # APP_VERSION: "v1.0.0"
-      # GIN_MODE: "release"
-      # HTTP_HOST: ""
     depends_on:
       redis:
         condition: service_started

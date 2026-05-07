@@ -17,6 +17,7 @@ type Delivery struct {
 	RetryCount     int       `json:"retry_count"`
 	MaxRetries     int       `json:"max_retries"`
 	LastError      *string   `json:"last_error,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 // ToDomain converts a Delivery DTO to a domain Notify model.
@@ -26,9 +27,11 @@ func (d Delivery) ToDomain() domain.Notify {
 		RecipientEmail: d.RecipientEmail,
 		Subject:        d.Subject,
 		Body:           d.Body,
+		ScheduledAt:    d.ScheduledAt,
 		RetryCount:     d.RetryCount,
 		MaxRetries:     d.MaxRetries,
 		LastError:      d.LastError,
+		CreatedAt:      d.CreatedAt,
 	}
 }
 
@@ -39,8 +42,10 @@ func ToDelivery(n domain.Notify) Delivery {
 		RecipientEmail: n.RecipientEmail,
 		Subject:        n.Subject,
 		Body:           n.Body,
+		ScheduledAt:    n.ScheduledAt,
 		RetryCount:     n.RetryCount,
 		MaxRetries:     n.MaxRetries,
 		LastError:      n.LastError,
+		CreatedAt:      n.CreatedAt,
 	}
 }

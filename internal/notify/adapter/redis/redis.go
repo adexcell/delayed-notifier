@@ -46,3 +46,10 @@ func (r *Redis) GetNotifyStatus(ctx context.Context, idempotencyKey string) (dom
 
 	return 0, err
 }
+
+// Del delete the notification status from Redis by its idempotency key.
+func (r *Redis) Del(ctx context.Context, idempotencyKey string) error {
+	key := idempotencyPrefix + idempotencyKey
+
+	return r.client.Del(ctx, key).Err()
+}

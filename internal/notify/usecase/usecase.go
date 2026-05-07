@@ -13,6 +13,7 @@ type Postgres interface {
 	CreateNotify(ctx context.Context, notify domain.Notify) error
 	GetNotifyStatusByID(ctx context.Context, notifyID uuid.UUID) (domain.Status, error)
 	GetNotifyByID(ctx context.Context, notifyID uuid.UUID) (domain.Notify, error)
+	UpdateNotify(ctx context.Context, notify domain.Notify) error
 	DeleteNotify(ctx context.Context, notifyID uuid.UUID) error
 }
 

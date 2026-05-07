@@ -54,7 +54,7 @@ func NewEmailSender(cfg Config) *EmailSender {
 }
 
 // Send sends a notification email to the recipient specified in the domain model.
-func (s *EmailSender) Send(ctx context.Context, notify domain.Notify) (err error) {
+func (s *EmailSender) Send(ctx context.Context, notify domain.Notify) error {
 	from, to, msg, err := s.prepareMessage(notify)
 	if err != nil {
 		return err

@@ -16,11 +16,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main cmd/main.go
 # Финальный минимальный образ
 FROM alpine:3.22
 
-ENV TZ=Asia/Yekaterinburg
-# Опционально: база таймзон для Alpine. 
-# Go с CGO_ENABLED=0 уже встраивает IANA-базу, но это гарантирует работу всех системных библиотек.
-RUN apk add --no-cache tzdata
-
 WORKDIR /app
 
 # Копируем бинарник из builder-этапа

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080/api/v1/notifies';;
+const API_BASE = '/api/v1/notifies';
 
 // Elements
 const createForm = document.getElementById('createForm');

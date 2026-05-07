@@ -36,6 +36,7 @@ func (u *NotifyUsecase) GetStatus(ctx context.Context, input dto.GetStatusInput)
 
 	// set into redis
 	task := domain.NotifyStatusTask{
+		Op:    domain.OpSet,
 		Key:   input.ID,
 		Value: status.String(),
 	}
